@@ -28,10 +28,10 @@
                 <li id="mOferta" class="active"><a href="/ofertas">Ofertas</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/registrarse"><span class="glyphicon glyphicon-user"></span> Registrate</a></li>
-                <li><a href="/identificarse"><span class="glyphicon glyphicon-log-in"></span> Identifícate</a></li>
+                <li sec:authorize="!isAuthenticated()"><a href="/registrarse"><span class="glyphicon glyphicon-user"></span> Registrate</a></li>
+                <li sec:authorize="!isAuthenticated()"><a href="/identificarse"><span class="glyphicon glyphicon-log-in"></span> Identifícate</a></li>
                 <!-- TODO: mostrar solo si esta en sesion -->
-                <li><a href="/deslogear"><span class="glyphicon glyphicon-log-in"></span> Cerrar Sesión</a></li>
+                <li sec:authorize="isAuthenticated()"><a href="/deslogear"><span class="glyphicon glyphicon-log-in"></span> Cerrar Sesión</a></li>
             </ul>
         </div>
     </div>
