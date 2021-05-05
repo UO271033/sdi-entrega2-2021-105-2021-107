@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block titulo %} Iniciar Sesión {% endblock %}
+
+{% block contenido_principal %}
+
+<h2>Usuarios del sistema</h2>
+<table class="table">
+
+    <thead class="thead">
+        <th scope="col">Email</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Apellidos</th>
+    </thead>
+<tbody>
+  {% for usuario in usuarios %}
+  <tr>
+        <td class="col-sm-3">{{ usuario.email }}</td>
+        <td class="col-sm-2">{{ usuario.nombre }}</td>
+        <td class="col-sm-2">{{ usuario.apellidos }}</td>
+  </tr>
+  {% endfor %}
+</tbody>
+</table>
+
+{% endblock %}
