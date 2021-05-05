@@ -33,6 +33,9 @@ app.set('crypto',crypto);
 
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD);
+require("./routes/rofertas.js")(app, swig, gestorBD);
+require("./routes/rapicanciones.js")(app, gestorBD);
+require("./routes/rapiusuarios.js")(app, gestorBD);
 
 // lanzar el servidor
 app.listen(app.get('port'), function() {
