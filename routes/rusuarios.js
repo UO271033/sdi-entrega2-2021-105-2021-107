@@ -35,7 +35,7 @@ module.exports = function(app, swig, gestorBD) {
         }
         gestorBD.obtenerUsuarios(criterio , function (usuarios) {
             if (usuarios == null) {
-                res.send("Error")
+                res.send("Error en la bd")
             }
             else {
                 if(usuarios.length>0) {
@@ -47,14 +47,82 @@ module.exports = function(app, swig, gestorBD) {
                         if (id == null){
                             res.send("Error al insertar el usuario");
                         } else {
-                            res.send('Usuario Insertado ' + id); //TODO: redireccionar a "opciones de usuario registrado"
+                            res.send('Usuario Insertado ' + id);
+                            req.session.usuario = usuario.email;
+                            //TODO: redireccionar a "opciones de usuario registrado"
                         }
                     });
                 }
             }
         });
-
-
-
     });
+
+
+
+    app.get("/identificarse", function (req,res) {
+        let respuesta = swig.renderFile('views/bidentificacion.html', {});
+        res.send(respuesta);
+    });
+
+    /**
+     * Obtiene los datos del formulario para intentar identificar al usuario
+     * Si el usuario insertó un email que no figura en la base de datos se le notifica
+     * Si el email existe pero la contraseña no corresponde se le informa
+     * Si los datos coinciden con un usuario, inicia sesión y es redirigido
+     */
+    app.post("/identificarse", function (req,res) {
+
+        let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
+            .update(req.body.password).digest('hex');
+
+
+        let criterio1 = {
+            email : req.body.email
+        }
+
+        let criterio2 = {
+            email : req.body.email,
+            password: seguro
+        }
+
+        gestorBD.obtenerUsuarios(criterio1,function (usuarios) {
+            if(usuarios==null) {
+                res.send("Error")
+            } else {
+                if(usuarios.length==0) {
+                    req.session.usuario = null;
+                    res.redirect("/identificarse" +
+                        "?mensaje=Email no registrado" +
+                        "&tipoMensaje=alert-danger ");
+                } else {
+                    gestorBD.obtenerUsuarios(criterio2,function (usuarios) {
+                        if(usuarios==null) {
+                            res.send("Error en la bd")
+                        } else {
+                            if(usuarios.length==0) {
+                                req.session.usuario = null;
+                                res.redirect("/identificarse" +
+                                    "?mensaje=Contraseña incorrecta" +
+                                    "&tipoMensaje=alert-danger ");
+                            } else {
+                                req.session.usuario = usuarios[0].email;
+                                //TODO: redireccionar
+                                //TODO: mirar si es usuario admin
+                                res.send("Identificado con éxito");
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+
+    app.get("/deslogear", function (req,res) {
+        req.session.usuario = null;
+        res.redirect("/identificarse");
+    });
+
+
+
 }
