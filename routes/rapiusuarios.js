@@ -13,7 +13,7 @@ module.exports = function (app, gestorBD) {
         }
         // Validacion
         validaDatosUsuario(usuario, function (errors) {
-            if (errors !== null && erros.length > 0) {
+            if (errors !== null && errors.length > 0) {
                 res.status(403);
                 res.json({
                     errores : errors

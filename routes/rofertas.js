@@ -6,9 +6,7 @@ module.exports = function(app, swig, gestorBD) {
     })
 
     app.post("/oferta", function(req, res) {
-        if ( req.session.usuario == null){
-            res.send("No hay nadie identificado");
-        }
+
         let oferta = {
             titulo : req.body.titulo,
             detalle : req.body.detalle,
@@ -33,7 +31,7 @@ module.exports = function(app, swig, gestorBD) {
         let criterio = {"usuario" : req.session.usuario};
 
         gestorBD.obtenerOfertasUsuario(criterio, function (ofertas) {
-            if (id == null) {
+            if (ofertas == null) {
                 let respuesta = swig.renderFile('views/error.html', {
                     mensaje : "Error al listar"
                 });

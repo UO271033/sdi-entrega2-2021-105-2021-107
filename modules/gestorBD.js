@@ -6,6 +6,44 @@ module.exports = {
         this.app = app;
     },
 
+    eliminarOfertas: function(criterio, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('ofertas');
+                collection.remove(criterio, function (err, ofertas) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(ofertas);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+
+    eliminarUsuarios: function(criterio, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collectionUsuarios = db.collection('usuarios');
+                collectionUsuarios.remove(criterio, function(err, usuarios) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(usuarios);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+
     obtenerOfertasUsuario : function(criterio, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
             if (err) {
@@ -92,7 +130,7 @@ module.exports = {
                     if (err) {
                         funcionCallback(null);
                     } else {
-                        funcionCallback(result.ops[0]._id);
+                        funcionCallback(result.ops[0]);
                     }
                     db.close();
                 });

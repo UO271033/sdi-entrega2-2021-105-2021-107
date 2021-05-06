@@ -22,6 +22,55 @@ app.use(bodyParser.urlencoded({ extended: true }));
 let gestorBD = require("./modules/gestorBD.js");
 gestorBD.init(app,mongo);
 
+let validator = require("./modules/validator.js");
+
+
+// routerUsuarioSession
+var routerUsuarioSession = express.Router();
+routerUsuarioSession.use(function(req, res, next) {
+    console.log("routerUsuarioSession");
+    if ( req.session.usuario ) {
+        next();
+    } else {
+        console.log("va a : "+req.session.destino)
+        res.redirect("/identificarse");
+    }
+});
+
+//Aplicar routerUsuarioSession
+app.use("/ofertas/agregar",routerUsuarioSession);
+app.use("/ofertas/propias",routerUsuarioSession);
+app.use("/oferta",routerUsuarioSession);
+
+
+// routerAdmin
+var routerAdmin = express.Router();
+routerAdmin.use(function(req, res, next) {
+    console.log("routerAdmin");
+    if ( !req.session.usuario ) { //Compruebo que esté identificado
+        console.log("va a : "+req.session.destino);
+        res.redirect("/identificarse");
+    } else {
+        if(req.session.usuario.perfil=="Estandar") { //Compruebo que sea admin
+            console.log("va a : "+req.session.destino);
+            res.redirect("/ofertas/propias");
+        } else {
+            next();
+        }
+    }
+});
+
+//Aplicar routerAdmin
+app.use("/usuarios",routerAdmin);
+
+
+
+
+
+
+
+
+
 app.use(express.static('public'));
 
 // Variables
@@ -32,7 +81,7 @@ app.set('clave','abcdefg');
 app.set('crypto',crypto);
 
 //Rutas/controladores por lógica
-require("./routes/rusuarios.js")(app, swig, gestorBD);
+require("./routes/rusuarios.js")(app, swig, gestorBD, validator);
 require("./routes/rofertas.js")(app, swig, gestorBD);
 require("./routes/rapiofertas.js")(app, gestorBD);
 require("./routes/rapiusuarios.js")(app, gestorBD);

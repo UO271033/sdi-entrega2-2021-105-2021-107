@@ -5,22 +5,26 @@
 {% block contenido_principal %}
 
 <h2>Usuarios del sistema</h2>
+<form class="form-check" method="post" action="/usuarios">
 <table class="table">
 
     <thead class="thead">
         <th scope="col">Email</th>
         <th scope="col">Nombre</th>
         <th scope="col">Apellidos</th>
+        <th scope="col">Eliminar</th>
     </thead>
 <tbody>
-  {% for usuario in usuarios %}
+  {% for user in usuarios %}
   <tr>
-        <td class="col-sm-3">{{ usuario.email }}</td>
-        <td class="col-sm-2">{{ usuario.nombre }}</td>
-        <td class="col-sm-2">{{ usuario.apellidos }}</td>
+        <td class="col-sm-3">{{ user.email }}</td>
+        <td class="col-sm-2">{{ user.nombre }}</td>
+        <td class="col-sm-2">{{ user.apellidos }}</td>
+        <td class="col-sm-1"><input class="form-check-input" type="checkbox" value="{{ user.email.toString() }}" name="emails"></td>
   </tr>
   {% endfor %}
 </tbody>
 </table>
-
+    <button type="submit" class="btn btn-primary">Eliminar seleccionados</button>
+</form>
 {% endblock %}

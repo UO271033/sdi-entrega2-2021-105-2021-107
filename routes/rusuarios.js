@@ -1,7 +1,7 @@
-module.exports = function(app, swig, gestorBD) {
+module.exports = function(app, swig, gestorBD, validator) {
 
     app.get("/registrarse" , function (req, res) {
-        let respuesta = swig.renderFile('views/bregistro.html', {});
+        let respuesta = swig.renderFile('views/bregistro.html', {"usuario" : req.session.usuario});
         res.send(respuesta);
     });
 
@@ -12,7 +12,6 @@ module.exports = function(app, swig, gestorBD) {
             res.redirect("/registrarse" +
                 "?mensaje=Las contraseñas no coinciden"+
                 "&tipoMensaje=alert-danger ");
-            return;
         }
 
 
@@ -27,13 +26,22 @@ module.exports = function(app, swig, gestorBD) {
             perfil : "Estandar"
         }
 
+        validator.validarUsuario(usuario, function (errors) {
+            if (errors !== null && errors.length > 0) {
+                res.redirect("/registrarse" +
+                    "?mensaje=Datos del usuario no válidos"+
+                    "&tipoMensaje=alert-danger ");
+            }
+        });
+
         let criterio = {
             email : usuario.email
         }
         gestorBD.obtenerUsuarios(criterio , function (usuarios) {
             if (usuarios == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    mensaje : "Error al obtener usuarios"
+                    mensaje : "Error al obtener usuarios",
+                    "usuario" : req.session.usuario
                 });
                 res.send(respuesta);
             }
@@ -43,13 +51,16 @@ module.exports = function(app, swig, gestorBD) {
                         "?mensaje=Email ya registrado" +
                         "&tipoMensaje=alert-danger ");
                 } else {
-                    gestorBD.insertarUsuario(usuario, function(id) {
-                        if (id == null){
-                            res.send("Error al insertar el usuario");
+                    gestorBD.insertarUsuario(usuario, function(userAdded) {
+                        if (userAdded == null){
+                            let respuesta = swig.renderFile('views/error.html', {
+                                mensaje : "Error al insertar usuario",
+                                "usuario" : req.session.usuario
+                            });
+                            res.send(respuesta);
                         } else {
-                            res.send('Usuario Insertado ' + id);
-                            req.session.usuario = usuario.email;
-                            //TODO: redireccionar a "opciones de usuario registrado"
+                            req.session.usuario = userAdded;
+                            res.redirect("/ofertas/propias");
                         }
                     });
                 }
@@ -60,7 +71,7 @@ module.exports = function(app, swig, gestorBD) {
 
 
     app.get("/identificarse", function (req,res) {
-        let respuesta = swig.renderFile('views/bidentificacion.html', {});
+        let respuesta = swig.renderFile('views/bidentificacion.html', {"usuario" : req.session.usuario});
         res.send(respuesta);
     });
 
@@ -88,7 +99,8 @@ module.exports = function(app, swig, gestorBD) {
         gestorBD.obtenerUsuarios(criterio1,function (usuarios) {
             if(usuarios==null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    mensaje : "Error al obtener usuarios"
+                    mensaje : "Error al obtener usuarios",
+                    "usuario" : req.session.usuario
                 });
                 res.send(respuesta);
             } else {
@@ -100,8 +112,10 @@ module.exports = function(app, swig, gestorBD) {
                 } else {
                     gestorBD.obtenerUsuarios(criterio2,function (usuarios) {
                         if(usuarios==null) {
+                            req.session.usuario = null;
                             let respuesta = swig.renderFile('views/error.html', {
-                                mensaje : "Error al obtener usuarios"
+                                "mensaje" : "Error al obtener usuarios",
+                                "usuario" : req.session.usuario
                             });
                             res.send(respuesta);
                         } else {
@@ -111,10 +125,12 @@ module.exports = function(app, swig, gestorBD) {
                                     "?mensaje=Contraseña incorrecta" +
                                     "&tipoMensaje=alert-danger ");
                             } else {
-                                req.session.usuario = usuarios[0].email;
-                                //TODO: redireccionar
-                                //TODO: mirar si es usuario admin
-                                res.redirect("/ofertas/propias");
+                                req.session.usuario = usuarios[0];
+                                if(usuarios[0].perfil=="Estandar") {
+                                    res.redirect("/ofertas/propias");
+                                } else {
+                                    res.redirect("/usuarios");
+                                }
                             }
                         }
                     });
@@ -137,17 +153,71 @@ module.exports = function(app, swig, gestorBD) {
         gestorBD.obtenerUsuarios(criterio, function(usuarios) {
             if (usuarios == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    mensaje : "Error al listars"
+                    mensaje : "Error al listar",
+                    "usuario" : req.session.usuario
                 });
                 res.send(respuesta);
             } else {
                 let respuesta = swig.renderFile('views/busuarios.html',
                     {
-                        usuarios : usuarios
+                        "usuarios" : usuarios,
+                        "usuario" : req.session.usuario
                     });
                 res.send(respuesta);
             }
         });
+    });
+
+
+    app.post("/usuarios" ,function (req,res) {
+
+        if(req.body.emails==null) {
+            res.redirect("/usuarios" +
+                "?mensaje=No se ha seleccionado ningún usuario" +
+                "&tipoMensaje=alert-danger ");
+        } else {
+
+            let emails = [];
+
+            if(!Array.isArray(req.body.emails)) {
+                emails.push(req.body.emails);
+            } else {
+                emails=req.body.emails;
+            }
+
+
+            let criterioOferta = {
+                "usuario" : { $in : emails }
+            }
+
+            let criterioUsuario = {
+                "email" : { $in : emails }
+            }
+
+            gestorBD.eliminarOfertas(criterioOferta, function (ofertas) {
+                if(ofertas==null) {
+                    let respuesta = swig.renderFile('views/error.html', {
+                        mensaje : "Error al eliminar las ofertas del usuario",
+                        "usuario" : req.session.usuario
+                    });
+                    res.send(respuesta);
+                } else {
+                    gestorBD.eliminarUsuarios(criterioUsuario,function (usuarios) {
+                        if(usuarios==null) {
+                            let respuesta = swig.renderFile('views/error.html', {
+                                mensaje : "Error al eliminar usuario",
+                                "usuario" : req.session.usuario
+                            });
+                            res.send(respuesta);
+                        } else {
+                            res.redirect("/usuarios" +
+                                "?mensaje=Eliminado correctamente" +
+                                "&tipoMensaje=alert-success ");
+                        }
+                    });
+                }
+            });
+        }
     });
 
 
