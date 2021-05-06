@@ -32,7 +32,10 @@ module.exports = function(app, swig, gestorBD) {
         }
         gestorBD.obtenerUsuarios(criterio , function (usuarios) {
             if (usuarios == null) {
-                res.send("Error en la bd")
+                let respuesta = swig.renderFile('views/error.html', {
+                    mensaje : "Error al obtener usuarios"
+                });
+                res.send(respuesta);
             }
             else {
                 if(usuarios.length>0) {
@@ -84,7 +87,10 @@ module.exports = function(app, swig, gestorBD) {
 
         gestorBD.obtenerUsuarios(criterio1,function (usuarios) {
             if(usuarios==null) {
-                res.send("Error")
+                let respuesta = swig.renderFile('views/error.html', {
+                    mensaje : "Error al obtener usuarios"
+                });
+                res.send(respuesta);
             } else {
                 if(usuarios.length==0) {
                     req.session.usuario = null;
@@ -105,7 +111,7 @@ module.exports = function(app, swig, gestorBD) {
                                 req.session.usuario = usuarios[0].email;
                                 //TODO: redireccionar
                                 //TODO: mirar si es usuario admin
-                                res.send("Identificado con éxito");
+                                res.redirect("/ofertas/propias");
                             }
                         }
                     });
