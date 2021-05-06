@@ -100,7 +100,10 @@ module.exports = function(app, swig, gestorBD) {
                 } else {
                     gestorBD.obtenerUsuarios(criterio2,function (usuarios) {
                         if(usuarios==null) {
-                            res.send("Error en la bd")
+                            let respuesta = swig.renderFile('views/error.html', {
+                                mensaje : "Error al obtener usuarios"
+                            });
+                            res.send(respuesta);
                         } else {
                             if(usuarios.length==0) {
                                 req.session.usuario = null;
@@ -133,7 +136,10 @@ module.exports = function(app, swig, gestorBD) {
         }
         gestorBD.obtenerUsuarios(criterio, function(usuarios) {
             if (usuarios == null) {
-                res.send("Error al listar");
+                let respuesta = swig.renderFile('views/error.html', {
+                    mensaje : "Error al listars"
+                });
+                res.send(respuesta);
             } else {
                 let respuesta = swig.renderFile('views/busuarios.html',
                     {
