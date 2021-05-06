@@ -19,19 +19,25 @@ module.exports = function(app, swig, gestorBD) {
         //Conectarse
         gestorBD.insertarOferta(oferta, function(id) {
             if (id == null) {
-                res.send("Error al insertar oferta");
+                let respuesta = swig.renderFile('views/error.html', {
+                    mensaje : "Error al insertar"
+                });
+                res.send(respuesta);
             } else {
                 res.send("Oferta insertada: " + id);
             }
-        })
+        });
     });
 
     app.get('/ofertas/propias', function (req, res) {
         let criterio = {"usuario" : req.session.usuario};
 
         gestorBD.obtenerOfertasUsuario(criterio, function (ofertas) {
-            if (ofertas==null) {
-                res.send("Error al listar");
+            if (id == null) {
+                let respuesta = swig.renderFile('views/error.html', {
+                    mensaje : "Error al listar"
+                });
+                res.send(respuesta);
             } else {
                 gestorBD.obtenerOfertas(criterio, function (ofertas) {
                     let respuesta = swig.renderFile('views/bofertaspropias.html',
