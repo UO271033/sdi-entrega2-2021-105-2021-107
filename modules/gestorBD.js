@@ -6,6 +6,25 @@ module.exports = {
         this.app = app;
     },
 
+    obtenerOfertasUsuario : function(criterio, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('ofertas');
+                collection.find(criterio).toArray(function (err, usuarios) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(usuarios);
+                    }
+                    db.close();
+                });
+            }
+
+        });
+    },
+
     insertarOferta: function(oferta, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
@@ -17,6 +36,24 @@ module.exports = {
                         funcionCallback(null);
                     } else {
                         funcionCallback(result.ops[0]._id);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+    obtenerOfertas : function (criterio, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('ofertas');
+                collection.find(criterio).toArray(function (err, ofertas) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(ofertas);
                     }
                     db.close();
                 });

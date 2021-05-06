@@ -108,7 +108,7 @@ module.exports = function(app, swig, gestorBD) {
                                 req.session.usuario = usuarios[0].email;
                                 //TODO: redireccionar
                                 //TODO: mirar si es usuario admin
-                                res.send("Identificado con éxito");
+                                res.redirect("/ofertas/propias");
                             }
                         }
                     });

@@ -12,7 +12,7 @@ module.exports = function(app, swig, gestorBD) {
         let oferta = {
             titulo : req.body.titulo,
             detalle : req.body.detalle,
-            fecha : new Date(Date.now()),
+            fecha : new Date(Date.now()).toLocaleDateString(),
             precio : req.body.precio,
             usuario : req.session.usuario
         }
@@ -24,6 +24,24 @@ module.exports = function(app, swig, gestorBD) {
                 res.send("Oferta insertada: " + id);
             }
         })
+    });
+
+    app.get('/ofertas/propias', function (req, res) {
+        let criterio = {"usuario" : req.session.usuario};
+
+        gestorBD.obtenerOfertasUsuario(criterio, function (ofertas) {
+            if (ofertas==null) {
+                res.send("Error al listar");
+            } else {
+                gestorBD.obtenerOfertas(criterio, function (ofertas) {
+                    let respuesta = swig.renderFile('views/bofertaspropias.html',
+                        {
+                            ofertas : ofertas
+                        });
+                    res.send(respuesta);
+                });
+            }
+        });
     });
 
 }
