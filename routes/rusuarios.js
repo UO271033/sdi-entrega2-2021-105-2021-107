@@ -1,12 +1,13 @@
-module.exports = function(app, swig, gestorBD, validator) {
+module.exports = function(app, swig, gestorBD, validator, logger) {
 
     app.get("/registrarse" , function (req, res) {
+        logger.debug("GET/registrarse");
         let respuesta = swig.renderFile('views/bregistro.html', {"usuario" : req.session.usuario});
         res.send(respuesta);
     });
 
-    app.post('/usuario', function(req, res) {
-
+    app.post("/usuario", function(req, res) {
+        logger.debug("POST/usuario");
         //Las contraseñas no son iguales
         if(req.body.password!=req.body.password2) {
             res.redirect("/registrarse" +
@@ -28,6 +29,7 @@ module.exports = function(app, swig, gestorBD, validator) {
 
         validator.validarUsuario(usuario, function (errors) {
             if (errors !== null && errors.length > 0) {
+                logger.debug("Usuario no válido");
                 res.redirect("/registrarse" +
                     "?mensaje=Datos del usuario no válidos"+
                     "&tipoMensaje=alert-danger ");
@@ -60,6 +62,8 @@ module.exports = function(app, swig, gestorBD, validator) {
                             res.send(respuesta);
                         } else {
                             req.session.usuario = userAdded;
+                            logger.debug(req.session.usuario.email +" añadido");
+                            logger.debug(req.session.usuario.email +" ha entrado en sesión");
                             res.redirect("/ofertas/propias");
                         }
                     });
@@ -71,6 +75,7 @@ module.exports = function(app, swig, gestorBD, validator) {
 
 
     app.get("/identificarse", function (req,res) {
+        logger.debug("GET/identificarse");
         let respuesta = swig.renderFile('views/bidentificacion.html', {"usuario" : req.session.usuario});
         res.send(respuesta);
     });
@@ -82,7 +87,7 @@ module.exports = function(app, swig, gestorBD, validator) {
      * Si los datos coinciden con un usuario, inicia sesión y es redirigido
      */
     app.post("/identificarse", function (req,res) {
-
+        logger.debug("POST/identificarse");
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
 
@@ -126,10 +131,13 @@ module.exports = function(app, swig, gestorBD, validator) {
                                     "&tipoMensaje=alert-danger ");
                             } else {
                                 req.session.usuario = usuarios[0];
+                                logger.debug(req.session.usuario.email +" ha entrado en sesión");
                                 if(usuarios[0].perfil=="Estandar") {
+                                    logger.debug(req.session.usuario.email +" tiene perfil estándar");
                                     res.redirect("/ofertas/propias");
                                 } else {
                                     res.redirect("/usuarios");
+                                    logger.debug(req.session.usuario.email +" tiene perfil admin");
                                 }
                             }
                         }
@@ -141,12 +149,14 @@ module.exports = function(app, swig, gestorBD, validator) {
 
 
     app.get("/deslogear", function (req,res) {
+        logger.debug(req.session.usuario.email +" ha salido de sesión");
         req.session.usuario = null;
         res.redirect("/identificarse");
     });
 
 
     app.get("/usuarios", function(req, res) {
+        logger.debug(req.session.usuario.email +" hace GET/usuarios");
         let criterio = {
             perfil : "Estandar"
         }
@@ -170,7 +180,7 @@ module.exports = function(app, swig, gestorBD, validator) {
 
 
     app.post("/usuarios" ,function (req,res) {
-
+        logger.debug(req.session.usuario.email +" hace POST/usuarios");
         if(req.body.emails==null) {
             res.redirect("/usuarios" +
                 "?mensaje=No se ha seleccionado ningún usuario" +
@@ -210,6 +220,7 @@ module.exports = function(app, swig, gestorBD, validator) {
                             });
                             res.send(respuesta);
                         } else {
+                            logger.debug(req.session.usuario.email +" ha eliminado los usuarios: "+emails);
                             res.redirect("/usuarios" +
                                 "?mensaje=Eliminado correctamente" +
                                 "&tipoMensaje=alert-success ");

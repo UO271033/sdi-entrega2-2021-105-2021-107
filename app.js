@@ -11,6 +11,13 @@ app.use(expressSession({
 }));
 
 
+let log4js = require('log4js');
+let logger = log4js.getLogger("log");
+logger.level = "debug";
+logger.debug("App iniciando");
+
+
+
 let crypto = require('crypto');
 
 let mongo = require('mongodb');
@@ -28,16 +35,16 @@ let validator = require("./modules/validator.js");
 // routerUsuarioSession
 var routerUsuarioSession = express.Router();
 routerUsuarioSession.use(function(req, res, next) {
-    console.log("routerUsuarioSession");
+    logger.debug("Router UsuarioSession");
     if ( req.session.usuario ) {
         next();
     } else {
-        console.log("va a : "+req.session.destino)
         res.redirect("/identificarse");
     }
 });
 
 //Aplicar routerUsuarioSession
+app.use("/deslogear",routerUsuarioSession);
 app.use("/ofertas/agregar",routerUsuarioSession);
 app.use("/ofertas/propias",routerUsuarioSession);
 app.use("/oferta",routerUsuarioSession);
@@ -46,13 +53,11 @@ app.use("/oferta",routerUsuarioSession);
 // routerAdmin
 var routerAdmin = express.Router();
 routerAdmin.use(function(req, res, next) {
-    console.log("routerAdmin");
+    logger.debug("Router Admin");
     if ( !req.session.usuario ) { //Compruebo que esté identificado
-        console.log("va a : "+req.session.destino);
         res.redirect("/identificarse");
     } else {
         if(req.session.usuario.perfil=="Estandar") { //Compruebo que sea admin
-            console.log("va a : "+req.session.destino);
             res.redirect("/ofertas/propias");
         } else {
             next();
@@ -81,12 +86,12 @@ app.set('clave','abcdefg');
 app.set('crypto',crypto);
 
 //Rutas/controladores por lógica
-require("./routes/rusuarios.js")(app, swig, gestorBD, validator);
+require("./routes/rusuarios.js")(app, swig, gestorBD, validator, logger);
 require("./routes/rofertas.js")(app, swig, gestorBD);
 require("./routes/rapiofertas.js")(app, gestorBD);
 require("./routes/rapiusuarios.js")(app, gestorBD);
 
 // lanzar el servidor
 app.listen(app.get('port'), function() {
-    console.log("Servidor activo");
+    logger.debug("Servidor activo");
 })
