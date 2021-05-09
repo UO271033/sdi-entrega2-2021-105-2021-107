@@ -91,7 +91,14 @@ require("./routes/rofertas.js")(app, swig, gestorBD);
 require("./routes/rapiofertas.js")(app, gestorBD);
 require("./routes/rapiusuarios.js")(app, gestorBD);
 
+
+
+
+app.get('/', function (req, res) {
+    res.redirect('/ofertas/propias');
+});
+
 // lanzar el servidor
 app.listen(app.get('port'), function() {
     logger.debug("Servidor activo");
-})
+});
