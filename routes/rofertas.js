@@ -73,7 +73,7 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
     });
 
     app.get('/oferta/eliminar/:id', function (req, res) {
-        logger.debug("GET/ofertas/eliminar/:id");
+        logger.debug("GET/ofertas/eliminar/"+req.params.id);
 
         let criterio = {"_id" : gestorBD.mongo.ObjectID(req.params.id) };
 
@@ -119,10 +119,12 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
         logger.debug("GET/ofertas/buscar");
 
         //Criterio de búsqueda
-        let criterio = {};
+        let criterio = {
+            comprada:false
+        };
         if (req.query.busqueda != null && req.query.busqueda != "" && req.query.busqueda != "undefined" ) {
             let expr = new RegExp(req.query.busqueda, 'i');
-            criterio = { "titulo" : expr};
+            criterio.titulo = expr;
             logger.debug("Criterio de búsqueda: "+expr);
         }
         
@@ -159,90 +161,124 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
         });
     });
 
-    app.get('/oferta/comprar/:id', function (req, res) {
-        let ofertaId = gestorBD.mongo.ObjectID(req.params.id);
-        let usuario = req.session.usuario.email;
 
-        usuarioPuedeComprarOferta(usuario, ofertaId, function (comprar) {
-            if (comprar) {
-                let compra = {
-                    usuario : usuario,
-                    ofertaId : ofertaId
-                }
-                gestorBD.insertarCompra(compra, function (idCompra) {
-                    if (idCompra == null) {
-                        logger.debug("Error al comprar");
-                        let respuesta = swig.renderFile('views/error.html', {
-                            mensaje : "Error al comprar canción",
-                            "usuario" : req.session.usuario
-                        });
-                        res.send(respuesta);
-                    } else {
-                        let criteriooferta = { "_id" : gestorBD.mongo.ObjectID(ofertaId)};
-                        usuario = req.session.usuario;
-                        let criteriousuario = { "_id" : gestorBD.mongo.ObjectID(usuario.id)};
-                        gestorBD.ofertaComprada(criteriooferta, criteriousuario, usuario, function (){});
-                        res.redirect("/compras");
-                    }
-                });
-            } else {
-                logger.debug("Error al comprar");
+
+
+    app.get('/oferta/comprar/:id', function (req, res) {
+        logger.debug("GET/oferta/comprar/" + req.params.id);
+
+        let criterio = {
+            _id: gestorBD.mongo.ObjectID(req.params.id)
+        }
+
+        //Obtenemos la oferta
+        gestorBD.obtenerOfertas(criterio, function (oferta) {
+            if (oferta == null) {
+                logger.debug("Error al acceder a la oferta");
                 let respuesta = swig.renderFile('views/error.html', {
-                    mensaje : "Error al comprar canción",
-                    "usuario" : req.session.usuario
+                    mensaje: "Error al realizar la compra",
+                    "usuario": req.session.usuario
                 });
                 res.send(respuesta);
+            } else {
+
+                if (oferta[0].comprada == true) {
+                    //Si el usuario no tiene dinero suficiente
+                    res.redirect("/ofertas/buscar" +
+                        "?mensaje=Esta oferta ya ha sido comprada" +
+                        "&tipoMensaje=alert-danger ");
+                } else {
+                    if (oferta[0].usuario == req.session.usuario.email) {
+                        //Un usuario no puede comprar su oferta
+                        //Si el usuario no tiene dinero suficiente
+                        res.redirect("/ofertas/buscar" +
+                            "?mensaje=No puedes comprar tu propia oferta" +
+                            "&tipoMensaje=alert-danger ");
+                    } else {
+
+                        let dineroUsuarioActualizado = (req.session.usuario.dinero - oferta[0].precio).toFixed(2);
+
+                        if (dineroUsuarioActualizado < 0) {
+                            //Si el usuario no tiene dinero suficiente
+                            res.redirect("/ofertas/buscar" +
+                                "?mensaje=No tiene dinero suficiente para realizar la compra" +
+                                "&tipoMensaje=alert-danger ");
+
+                        } else {
+                            //Se puede comprar:
+
+                            //Restamos el dinero al usuario:
+                            let criterioUser = {email: req.session.usuario.email}
+
+                            let usuarioMod = {dinero: dineroUsuarioActualizado}
+
+                            gestorBD.modificarUsuario(criterioUser, usuarioMod, function (result) {
+                                if (result == null) {
+                                    logger.debug("Error al modificar los datos del usuario");
+                                    let respuesta = swig.renderFile('views/error.html', {
+                                        mensaje: "Error al realizar la compra",
+                                        "usuario": req.session.usuario
+                                    });
+                                    res.send(respuesta);
+                                } else {
+                                    req.session.usuario.dinero = dineroUsuarioActualizado;
+                                    logger.debug("Dinero del usuario " + req.session.usuario.email + " actualizado: " + dineroUsuarioActualizado + "€");
+                                    //Modificamos la oferta:
+
+                                    let ofertaMod = {
+                                        comprada: true,
+                                        comprador: req.session.usuario.email
+                                    }
+
+                                    gestorBD.modificarOferta(criterio, ofertaMod, function (result) {
+                                        if (result == null) {
+                                            logger.debug("Error al modificar los datos de la oferta");
+                                            let respuesta = swig.renderFile('views/error.html', {
+                                                mensaje: "Error al realizar la compra",
+                                                "usuario": req.session.usuario
+                                            });
+                                            res.send(respuesta);
+                                        } else {
+                                            //Compra realizada
+                                            logger.debug("El usuario " + req.session.usuario.email + " ha comprado la oferta: " + req.params.id + "€");
+                                            res.redirect("/ofertas/buscar" +
+                                                "?mensaje=Compra realizada con éxito" +
+                                                "&tipoMensaje=alert-success ");
+
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                }
             }
         });
     });
 
-    function usuarioPuedeComprarOferta(usuario, ofertaId, functionCallback) {
-        let criterio_usuario = {$and: [{"_id": ofertaId}, {"usuario": usuario} ]};
-        let criterio_compra = {$and: [{"ofertaId": ofertaId}, {"usuario": usuario}]};
-        gestorBD.obtenerOfertas(criterio_usuario, function (ofertas) {
-            if (ofertas == null || ofertas.length > 0) {
-                logger.debug("No hay ofertas disponibles para comprar");
-                functionCallback(false);
-            } else {
-                gestorBD.obtenerCompras(criterio_compra, function (compras) {
-                    if (compras == null || compras.length > 0) {
-                        logger.debug("No hay compras disponibles");
-                        functionCallback(false);
-                    } else {
-                        logger.debug("Ofertas disponilbes para comprar");
-                        functionCallback(true);
-                    }
-                });
-            }
-        });
-    };
+
+
 
     app.get("/compras", function (req, res) {
-        let criterio = {"usuario" : req.session.usuario.email };
+        logger.debug("GET/compras");
 
-        gestorBD.obtenerCompras(criterio, function (compras) {
-            if (compras == null) {
-                logger.debug("Error al listar");
+        let criterio = {comprador : req.session.usuario.email };
+
+        gestorBD.obtenerOfertas(criterio, function (ofertas) {
+            if (ofertas == null) {
+                logger.debug("Error al obtener las compras del usuario");
                 let respuesta = swig.renderFile("views/error.html", {
                     mensaje : "Error al listar compras",
                     "usuario" : req.session.usuario
                 });
                 res.send(respuesta);
             } else {
-                let ofertasCompradasIds = [];
-                for (i = 0; i < compras.length; i++) {
-                    ofertasCompradasIds.push(compras[i].ofertaId);
-                }
-
-                let criterio = {"_id" : {$in: ofertasCompradasIds}}
-                gestorBD.obtenerOfertas(criterio, function (ofertas) {
-                    logger.debug("Ofertas compradas obtenidas");
-                    let respuesta = swig.renderFile("views/bcompras.html", {
+                logger.debug("Ofertas compradas mostradas");
+                let respuesta = swig.renderFile("views/bcompras.html", {
                         ofertas : ofertas,
                         "usuario" : req.session.usuario
-                    });
-                    res.send(respuesta);
                 });
+                res.send(respuesta);
             }
         });
     });

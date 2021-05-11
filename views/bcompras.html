@@ -9,18 +9,16 @@
         <tr>
             <th>Titulo</th>
             <th>Detalle</th>
-            <th>Fecha</th>
-            <th>Precio</th>
-            <th>Usuario</th>
+            <th>Precio (€)</th>
+            <th>Vendedor</th>
             <th class="col-md-1"></th>
         </tr>
         </thead>
         <tbody>
-        {% for cancion in canciones %}
+        {% for oferta in ofertas %}
         <tr>
             <td>{{ oferta.titulo }}</td>
             <td>{{ oferta.detalle }}</td>
-            <td>{{ oferta.fecha }}</td>
             <td>{{ oferta.precio }}</td>
             <td>{{ oferta.usuario }}</td>
         </tr>

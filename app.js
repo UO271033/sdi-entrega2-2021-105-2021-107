@@ -101,6 +101,7 @@ app.use("/ofertas/agregar",routerUsuarioSession);
 app.use("/ofertas/propias",routerUsuarioSession);
 app.use("/ofertas/buscar",routerUsuarioSession);
 app.use("/oferta",routerUsuarioSession);
+app.use("/compras",routerUsuarioSession);
 
 
 // routerAdmin
@@ -140,7 +141,7 @@ app.set('crypto',crypto);
 
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD, validator, logger);
-require("./routes/rofertas.js")(app, swig, gestorBD, logger);
+require("./routes/rofertas.js")(app, swig, gestorBD, validator, logger);
 require("./routes/rapiofertas.js")(app, gestorBD);
 
 
