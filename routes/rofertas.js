@@ -1,4 +1,4 @@
-module.exports = function(app, swig, gestorBD, logger) {
+module.exports = function(app, swig, gestorBD, validator, logger) {
 
     app.get('/ofertas/agregar', function (req, res) {
         logger.debug("GET/ofertas/agregar");
@@ -9,7 +9,7 @@ module.exports = function(app, swig, gestorBD, logger) {
     })
 
     app.post("/oferta", function(req, res) {
-        logger.debug("POST/usuario");
+        logger.debug("POST/oferta");
         let oferta = {
             titulo : req.body.titulo,
             detalle : req.body.detalle,
@@ -18,6 +18,18 @@ module.exports = function(app, swig, gestorBD, logger) {
             usuario : req.session.usuario.email,
             comprada : false
         }
+
+
+        ///Validar
+        validator.validaDatosOferta(oferta, function (errors) {
+            if (errors !== null && errors.length > 0) {
+                logger.debug("Oferta no válida");
+                res.redirect("/ofertas/agregar" +
+                    "?mensaje=Datos de la oferta no válidos"+
+                    "&tipoMensaje=alert-danger ");
+            }
+        });
+
         //Conectarse
         gestorBD.insertarOferta(oferta, function(id) {
             if (id == null) {
