@@ -29,7 +29,7 @@ module.exports = function(app, swig, gestorBD, logger) {
     });
 
     app.get("/api/ofertas", function (req, res) {
-        let criterio = {"email" : {$nin: req.session.usuario.email}};
+        let criterio = {"usuario" : {$ne: req.session.usuario.email}};
 
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
@@ -45,7 +45,7 @@ module.exports = function(app, swig, gestorBD, logger) {
         });
     });
 
-    app.post("/api/cancion", function(req, res) {
+    app.post("/api/oferta", function(req, res) {
         let oferta = {
             titulo : req.body.titulo,
             detalle : req.body.detalle,
