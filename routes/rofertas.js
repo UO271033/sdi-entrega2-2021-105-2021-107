@@ -47,6 +47,7 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
     });
 
     app.get('/ofertas/propias', function (req, res) {
+        logger.debug("GET/ofertas/propias");
         let criterio = {"usuario" : req.session.usuario.email};
 
         gestorBD.obtenerOfertasUsuario(criterio, function (ofertas) {
