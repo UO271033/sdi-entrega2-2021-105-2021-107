@@ -39,7 +39,7 @@ module.exports = {
                         funcionCallback(null);
                     } else {
                         usuario.dinero = usuario.dinero - precio;
-                        collection.update(criteriousuaio, {$set: usuario}, function (err, result) {
+                        collection.update(criteriousuario, {$set: usuario}, function (err, result) {
                             if (err) {
                                 funcionCallback(null);
                             } else {
