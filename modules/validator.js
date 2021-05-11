@@ -7,7 +7,7 @@ module.exports = {
     if (usuario.nombre === null || typeof usuario.nombre === 'undefined' || usuario.nombre === "")
         errors.push("El nombre del usuario no puede  estar vacio")
     if (usuario.apellidos === null || typeof usuario.apellidos === 'undefined' || usuario.apellidos === "")
-        errors.push("Los apellidos del usuario no pueden  estar vacios")
+        errors.push("Los apellidos del usuario no pueden estar vacios")
     if (usuario.password === null || typeof usuario.password === 'undefined' || usuario.password === "")
         errors.push("La contraseña del usuario no puede  estar vacia")
     if (usuario.dinero === null || typeof usuario.dinero === 'undefined' || usuario.dinero === "" || usuario.dinero < 0)
