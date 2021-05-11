@@ -1,6 +1,7 @@
-module.exports = function(app, swig, gestorBD, logger) {
+module.exports = function(app, gestorBD, logger) {
 
     app.post("/api/autenticar/", function (req, res) {
+        logger.debug("POST/api/autenticar");
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
 
@@ -11,11 +12,13 @@ module.exports = function(app, swig, gestorBD, logger) {
 
         gestorBD.obtenerUsuarios(criterio, function (usuarios) {
             if (usuarios == null || usuarios.length == 0) {
+                logger.debug("Error al autenticar");
                 res.status(401);
                 res.json ({
                     autenticado : false
                 })
             } else {
+                logger.debug("Autenticado con éxito");
                 let token = app.get('jwt').sign(
                     {usuario: criterio.email, tiempo: Date.now()/1000},
                     "secreto");
@@ -29,7 +32,8 @@ module.exports = function(app, swig, gestorBD, logger) {
     });
 
     app.get("/api/ofertas", function (req, res) {
-        let criterio = {"usuario" : {$ne: req.session.usuario.email}};
+        logger.debug("GET/api/ofertas");
+        let criterio = {"usuario" : {$ne: req.session.usuario}};
 
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
@@ -39,11 +43,19 @@ module.exports = function(app, swig, gestorBD, logger) {
                     error : "Se ha producido un error al listar"
                 });
             } else {
+                logger.debug("Lista de ofertas")
                 res.status(200);
                 res.send(JSON.stringify(ofertas));
             }
         });
     });
+
+    app.get("/api/chat/:id", function (req, res) {
+        logger.debug("GET/api/chat");
+        let criterio = {"_id" : gestorBD.mongo.ObjectID(req.params.id)}
+
+        gestorBD.obtener
+    })
 
     app.post("/api/oferta", function(req, res) {
         let oferta = {

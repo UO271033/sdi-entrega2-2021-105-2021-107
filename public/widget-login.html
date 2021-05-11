@@ -21,6 +21,7 @@
 </div>
 
 <script>
+  window.history.pushState("", "", "/cliente.html?w=login");
   $("#boton-login").click(function (){
     $.ajax({
       url: URLbase + "/autenticar",
@@ -33,7 +34,7 @@
       success: function (respuesta) {
         console.log(respuesta.token);
         token=respuesta.token;
-        $("#contendor-principal").load("widget-ofertas.html");
+        $("#contenedor-principal").load("widget-ofertas.html");
       },
       error:function (error) {
         $("#widget-login").prepend("<div class='alert alert-danger'>Usuario no encontrado</div>");

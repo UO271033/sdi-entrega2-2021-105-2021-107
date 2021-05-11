@@ -2,7 +2,8 @@
 let express = require('express');
 let app = express();
 
-
+let rest = require('request');
+app.set('rest', rest);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -140,8 +141,8 @@ app.set('crypto',crypto);
 
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD, validator, logger);
-require("./routes/rofertas.js")(app, swig, gestorBD, logger);
-require("./routes/rapiofertas.js")(app, gestorBD);
+require("./routes/rofertas.js")(app, swig, gestorBD, validator, logger);
+require("./routes/rapiofertas.js")(app, gestorBD, logger);
 
 
 
@@ -150,7 +151,15 @@ app.get('/', function (req, res) {
     res.redirect('/ofertas/propias');
 });
 
-// lanzar el servidor
+// Lanzar al servidor
+app.use( function (err, req, res, next) {
+    console.log("Error producido: " + err); //mostramos el error en consola
+    if (!res.headersSent) {
+        res.status(400);
+        res.send("Recuros no disponible");
+    }
+});
+
 app.listen(app.get('port'), function() {
     logger.debug("Servidor activo");
 });
