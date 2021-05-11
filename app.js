@@ -2,7 +2,8 @@
 let express = require('express');
 let app = express();
 
-
+let rest = require('request');
+app.set('rest', rest);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -101,7 +102,6 @@ app.use("/ofertas/agregar",routerUsuarioSession);
 app.use("/ofertas/propias",routerUsuarioSession);
 app.use("/ofertas/buscar",routerUsuarioSession);
 app.use("/oferta",routerUsuarioSession);
-app.use("/compras",routerUsuarioSession);
 
 
 // routerAdmin
@@ -141,7 +141,7 @@ app.set('crypto',crypto);
 
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD, validator, logger);
-require("./routes/rofertas.js")(app, swig, gestorBD, validator, logger);
+require("./routes/rofertas.js")(app, swig, gestorBD, logger);
 require("./routes/rapiofertas.js")(app, gestorBD);
 
 

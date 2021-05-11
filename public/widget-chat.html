@@ -1,0 +1,52 @@
+<div id="widget-chat" >
+    <button class="btn" onclick="cargarMensajes()" >Actualizar</button>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Autor del mensaje</th>
+            <th>Fecha/Hora</th>
+            <th>Mensaje</th>
+            <th>Leído</th>
+            <th class="col-md-1"></th>
+        </tr>
+        </thead>
+        <tbody id="tablaCuerpo">
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+    window.history.pushState("","", "/cliente.html?w=chat");
+    var mensajes;
+    function cargarMensajes() {
+        $.ajax({
+            url: URLbase + "/chat",
+            type: "GET",
+            data: {},
+            dataType: 'json',
+            headers: { "token": token},
+            success: function (respuesta) {
+                mensajes = respuesta;
+                actualizarTabla(mensajes);
+            },
+            error : function (error) {
+                $( "#contenedor-principal").load("widget-login");
+            }
+        });
+    }
+
+    function actualizarTabla(mensajesMostrar) {
+        $("#tablaCuerpo").empty();
+        for (i = 0; i < mensajesMostrar.length; i++) {
+            $("#tablaCuerpo").append(
+                "<tr id="+mensajesMostrar[i]._id+">"+
+                "<td>"+mensajesMostrar[i].autor+"</td>"+
+                "<td>"+mensajesMostrar[i].fecha+"</td>"+
+                "<td>"+mensajesMostrar[i].mensaje+"</td>"+
+                "<td>"+mensajesMostrar[i].leido+"</td>"+
+                "</tr>"
+            );
+        }
+    }
+</script>

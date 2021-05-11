@@ -18,10 +18,11 @@
 
 
 <script>
+  window.history.pushState("","", "/cliente.html?w=ofertas");
   var ofertas;
   function cargarOfertas(){
     $.ajax({
-      url: URLbase + "/oferta",//TODO: no mostrar ofertas propias
+      url: URLbase + "/ofertas",//TODO: no mostrar ofertas propias
       type: "GET",
       data: { },
       dataType: 'json',
@@ -44,10 +45,17 @@
               "<td>"+ofertasMostrar[i].detalle+"</td>" +
               "<td>"+ofertasMostrar[i].precio+"</td>" +
               "<td>"+ofertasMostrar[i].usuario+"</td>" +
+              "<td>"+
+              "<a onclick=chat('"+ofertasMostrar[i]._id+"')>Chat</a>"+
+              "</td>"+
               "</tr>" );
     }
   }
   cargarOfertas();
 
+  function chat(_id) {
+    idOfertaSeleccionada = _id;
+    $("#contenedor-principal").load("widget-chat.html");
+  }
+
 </script>
-}
