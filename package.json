@@ -8,5 +8,12 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "log4js": "^6.3.0",
+    "mongodb": "^2.2.33",
+    "swig": "^1.4.2"
+  }
 }
