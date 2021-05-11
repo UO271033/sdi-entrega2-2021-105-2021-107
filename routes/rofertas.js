@@ -73,9 +73,15 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
     });
 
     app.get('/oferta/eliminar/:id', function (req, res) {
+        logger.debug("GET/ofertas/eliminar/:id");
+
         let criterio = {"_id" : gestorBD.mongo.ObjectID(req.params.id) };
-        gestorBD.eliminarOfertas(criterio, function (ofertas) {
-            if (ofertas == null) {
+
+
+
+        //Obtengo la oferta a borrar
+        gestorBD.obtenerOfertas(criterio, function (oferta) {
+            if(oferta==null) {
                 logger.debug("Error al borrar las ofertas");
                 let respuesta = swig.renderFile('views/error.html', {
                     mensaje : "Error al borrar las ofertas",
@@ -83,9 +89,46 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
                 });
                 res.send(respuesta);
             } else {
-                res.redirect("/ofertas/propias");
+
+                //El usuario en sesión es el propietario y la oferta no está vendida
+                if(oferta[0].usuario==req.session.usuario.email && oferta[0].comprada==false) {
+
+                    gestorBD.eliminarOfertas(criterio, function (ofertas) {
+                        if (ofertas == null) {
+                            logger.debug("Error al borrar las ofertas");
+                            let respuesta = swig.renderFile('views/error.html', {
+                                mensaje : "Error al borrar las ofertas",
+                                "usuario" : req.session.usuario
+                            });
+                            res.send(respuesta);
+                        } else {
+                            logger.debug("Oferta eliminada id: "+oferta[0]._id);
+                            res.redirect("/ofertas/propias"  +
+                                "?mensaje=Oferta eliminada correctamente"+
+                                "&tipoMensaje=alert-success ");
+                        }
+                    });
+
+
+
+                } else {
+                    res.redirect("/ofertas/propias" +
+                        "?mensaje=No puedes borrar esta oferta"+
+                        "&tipoMensaje=alert-danger ");
+                }
+
+
+
+
+
+
             }
         });
+
+
+
+
+
     });
 
     app.get('/ofertas/buscar', function (req, res) {
