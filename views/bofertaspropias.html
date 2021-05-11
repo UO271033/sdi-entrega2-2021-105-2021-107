@@ -10,6 +10,7 @@
                 <th>Detalle</th>
                 <th>Fecha</th>
                 <th>Precio</th>
+                <th>Estado</th>
                 <th class="col-md-1"></th>
             </tr>
         </thead>
@@ -20,6 +21,13 @@
                 <td>{{ oferta.detalle }}</td>
                 <td>{{ oferta.fecha }}</td>
                 <td>{{ oferta.precio }}</td>
+                {% if oferta.comprada %}
+                <td>Comprada</td>
+                {% else %}
+                <td>En venta</td>
+                <td><a href="/oferta/eliminar/{{oferta._id.toString() }}">Eliminar</a> <br>
+                {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
