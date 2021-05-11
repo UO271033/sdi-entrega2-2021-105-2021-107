@@ -95,6 +95,7 @@ routerUsuarioSession.use(function(req, res, next) {
 app.use("/deslogear",routerUsuarioSession);
 app.use("/ofertas/agregar",routerUsuarioSession);
 app.use("/ofertas/propias",routerUsuarioSession);
+app.use("/ofertas/buscar",routerUsuarioSession);
 app.use("/oferta",routerUsuarioSession);
 
 

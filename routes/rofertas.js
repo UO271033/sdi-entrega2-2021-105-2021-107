@@ -77,8 +77,6 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
 
         let criterio = {"_id" : gestorBD.mongo.ObjectID(req.params.id) };
 
-
-
         //Obtengo la oferta a borrar
         gestorBD.obtenerOfertas(criterio, function (oferta) {
             if(oferta==null) {
@@ -102,40 +100,32 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
                             });
                             res.send(respuesta);
                         } else {
-                            logger.debug("Oferta eliminada id: "+oferta[0]._id);
+                            logger.debug("Oferta eliminada: "+oferta[0]._id);
                             res.redirect("/ofertas/propias"  +
                                 "?mensaje=Oferta eliminada correctamente"+
                                 "&tipoMensaje=alert-success ");
                         }
                     });
-
-
-
                 } else {
                     res.redirect("/ofertas/propias" +
                         "?mensaje=No puedes borrar esta oferta"+
                         "&tipoMensaje=alert-danger ");
                 }
-
-
-
-
-
-
             }
         });
-
-
-
-
-
     });
 
     app.get('/ofertas/buscar', function (req, res) {
+        logger.debug("GET/ofertas/buscar");
+
+        //Criterio de búsqueda
         let criterio = {};
-        if (req.query.busqueda != null) {
-            criterio = { "nombre" : {$regex : ".*"+req.query.busqueda+".*"}};
+        if (req.query.busqueda != null && req.query.busqueda != "" && req.query.busqueda != "undefined" ) {
+            let expr = new RegExp(req.query.busqueda, 'i');
+            criterio = { "titulo" : expr};
+            logger.debug("Criterio de búsqueda: "+expr);
         }
+        
         let pg = parseInt(req.query.pg);
         if (req.query.pg == null) {
             pg = 1;
@@ -159,6 +149,7 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
                         paginas.push(i);
                     }
                 }
+                logger.debug("Se muestran las ofertas buscadas");
                 let respuesta = swig.renderFile('views/bofertas.html', {
                     ofertas : ofertas,
                     "usuario" : req.session.usuario
