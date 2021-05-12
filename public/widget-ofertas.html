@@ -54,6 +54,7 @@
   cargarOfertas();
 
   function chat(_id, email) {
+    console.log(_id);
     idOfertaSeleccionada = _id;
     emailVendedor = email;
     $("#contenedor-principal").load("widget-chat.html");

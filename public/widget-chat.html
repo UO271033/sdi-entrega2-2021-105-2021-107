@@ -33,7 +33,7 @@
     var mensajes;
     function cargarMensajes() {
         $.ajax({
-            url: URLbase + "/chat/mensajes" + idOfertaSeleccionada,
+            url: URLbase + "/chat/mensajes",
             type: "GET",
             data: {
                 ofertaId : idOfertaSeleccionada,
@@ -51,17 +51,17 @@
     }
 
     $("#boton-send").click(function (){
-        console.log("aqui entra");
+        console.log(idOfertaSeleccionada);
         $.ajax({
             url: URLbase + "/chat/mensajes",
             type: "POST",
             data: {
-                mensaje: $("#mensaje").val(),
+                ofertaId: idOfertaSeleccionada,
+                mensaje: $("#mensaje").val()
             },
             dataType: 'json',
             success: function (respuesta) {
-                console.log(respuesta.token);
-                token=respuesta.token;
+                console.log(respuesta);
                 cargarMensajes();
             },
             error:function (error) {
