@@ -13,63 +13,63 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
             res.redirect("/registrarse" +
                 "?mensaje=Las contraseñas no coinciden"+
                 "&tipoMensaje=alert-danger ");
-        }
+        } else {
 
-
-        let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
-            .update(req.body.password).digest('hex');
-        let usuario = {
-            email : req.body.email,
-            nombre : req.body.nombre,
-            apellidos : req.body.apellidos,
-            password : seguro,
-            dinero : 100.0,
-            perfil : "Estandar"
-        }
-
-        validator.validarUsuario(usuario, function (errors) {
-            if (errors !== null && errors.length > 0) {
-                logger.debug("Usuario no válido");
-                res.redirect("/registrarse" +
-                    "?mensaje=Datos del usuario no válidos"+
-                    "&tipoMensaje=alert-danger ");
+            let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
+                .update(req.body.password).digest('hex');
+            let usuario = {
+                email : req.body.email,
+                nombre : req.body.nombre,
+                apellidos : req.body.apellidos,
+                password : seguro,
+                dinero : 100.0,
+                perfil : "Estandar"
             }
-        });
 
-        let criterio = {
-            email : usuario.email
-        }
-        gestorBD.obtenerUsuarios(criterio , function (usuarios) {
-            if (usuarios == null) {
-                let respuesta = swig.renderFile('views/error.html', {
-                    mensaje : "Error al obtener usuarios",
-                    "usuario" : req.session.usuario
-                });
-                res.send(respuesta);
-            }
-            else {
-                if(usuarios.length>0) {
+            validator.validarUsuario(usuario, function (errors) {
+                if (errors !== null && errors.length > 0) {
+                    logger.debug("Usuario no válido");
                     res.redirect("/registrarse" +
-                        "?mensaje=Email ya registrado" +
+                        "?mensaje=Datos del usuario no válidos"+
                         "&tipoMensaje=alert-danger ");
                 } else {
-                    gestorBD.insertarUsuario(usuario, function(userAdded) {
-                        if (userAdded == null){
+
+                    let criterio = {
+                        email : usuario.email
+                    }
+                    gestorBD.obtenerUsuarios(criterio , function (usuarios) {
+                        if (usuarios == null) {
                             let respuesta = swig.renderFile('views/error.html', {
-                                mensaje : "Error al insertar usuario",
+                                mensaje : "Error al obtener usuarios",
                                 "usuario" : req.session.usuario
                             });
                             res.send(respuesta);
                         } else {
-                            req.session.usuario = userAdded;
-                            logger.debug(req.session.usuario.email +" añadido");
-                            logger.debug(req.session.usuario.email +" ha entrado en sesión");
-                            res.redirect("/ofertas/propias");
+                            if(usuarios.length>0) {
+                                res.redirect("/registrarse" +
+                                    "?mensaje=Email ya registrado" +
+                                    "&tipoMensaje=alert-danger ");
+                            } else {
+                                gestorBD.insertarUsuario(usuario, function(userAdded) {
+                                    if (userAdded == null){
+                                        let respuesta = swig.renderFile('views/error.html', {
+                                            mensaje : "Error al insertar usuario",
+                                            "usuario" : req.session.usuario
+                                        });
+                                        res.send(respuesta);
+                                    } else {
+                                        req.session.usuario = userAdded;
+                                        logger.debug(req.session.usuario.email +" añadido");
+                                        logger.debug(req.session.usuario.email +" ha entrado en sesión");
+                                        res.redirect("/ofertas/propias");
+                                    }
+                                });
+                            }
                         }
                     });
                 }
-            }
-        });
+            });
+        }
     });
 
 
@@ -136,8 +136,8 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
                                     logger.debug(req.session.usuario.email +" tiene perfil estándar");
                                     res.redirect("/ofertas/propias");
                                 } else {
-                                    res.redirect("/usuarios");
                                     logger.debug(req.session.usuario.email +" tiene perfil admin");
+                                    res.redirect("/usuarios");
                                 }
                             }
                         }

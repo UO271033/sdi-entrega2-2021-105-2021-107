@@ -20,11 +20,11 @@
         <td class="col-sm-3">{{ user.email }}</td>
         <td class="col-sm-2">{{ user.nombre }}</td>
         <td class="col-sm-2">{{ user.apellidos }}</td>
-        <td class="col-sm-1"><input class="form-check-input" type="checkbox" value="{{ user.email.toString() }}" name="emails"></td>
+        <td class="col-sm-1"><input  id="{{ user.email.toString() }}" type="checkbox" value="{{ user.email.toString() }}" name="emails"></td>
   </tr>
   {% endfor %}
 </tbody>
 </table>
-    <button type="submit" class="btn btn-primary">Eliminar seleccionados</button>
+    <button type="submit" name="bEliminar" class="btn btn-primary">Eliminar seleccionados</button>
 </form>
 {% endblock %}
