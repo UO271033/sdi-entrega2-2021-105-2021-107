@@ -53,7 +53,7 @@ module.exports = function(app, gestorBD, logger) {
 
     app.get("/api/chat/mensajes", function (req, res) {
         logger.debug("GET/api/chat/mensajes");
-        logger.debug(req.body.ofertaId);
+        logger.debug(res.usuario);
         let criterio = {
             ofertaId : gestorBD.mongo.ObjectID(req.body.ofertaId),
             autor : res.usuario
@@ -134,30 +134,37 @@ module.exports = function(app, gestorBD, logger) {
 
     app.post("/api/chat/mensajes", function (req, res) {
         logger.debug("POST/api/chat/mensajes");
-        logger.debug(req.session.usuario);
-        let mensaje = {
-            autor: res.usuario,
-            oferta: req.params.ofertaId,
-            mensaje: req.body.mensaje,
-            fecha: new Date().toUTCString(),
-            leido: false
-        }
-
-        gestorBD.insertarMensaje(mensaje, function (id) {
-            if (id == null) {
-                logger.debug("Error al insertar mensaje");
-                res.status(500);
-                res.json({
-                    error : "Se ha producido un error al insertar el mensaje"
-                })
-            } else {
-                res.status(201);
-                res.json({
-                    mensaje : "mensaje insertado",
-                    _id : id
-                });
+        let token = req.headers['token'] || req.body.token || req.query.token;
+        app.get('jwt').verify(token, 'secreto', function (err, infoToken) {
+            let mail = infoToken.usuario;
+            logger.debug(mail);
+            let mensaje = {
+                autor: mail,
+                oferta: req.body.ofertaId,
+                mensaje: req.body.mensaje,
+                fecha: new Date().toUTCString(),
+                leido: false
             }
+
+            gestorBD.insertarMensaje(mensaje, function (id) {
+                if (id == null) {
+                    logger.debug("Error al insertar mensaje");
+                    res.status(500);
+                    res.json({
+                        error : "Se ha producido un error al insertar el mensaje"
+                    })
+                } else {
+                    logger.debug("mensaje insertado: " + id);
+                    res.status(201);
+                    res.json({
+                        mensaje : "mensaje insertado",
+                        _id : id
+                    });
+                }
+            });
         });
+
+
     });
 
     app.get("/api/chats", function (req, res) {
