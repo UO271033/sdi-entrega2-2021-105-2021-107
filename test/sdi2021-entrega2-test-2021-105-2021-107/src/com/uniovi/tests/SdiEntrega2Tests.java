@@ -43,6 +43,7 @@ public class SdiEntrega2Tests {
 	//Común a Windows y a MACOSX
 	static WebDriver driver = getDriver(PathFirefox65, Geckdriver024); 
 	static String URL = "http://localhost:8081";
+	static String URL_Cliente = "http://localhost:8081/cliente.html";
 
 
 	public static WebDriver getDriver(String PathFirefox, String Geckdriver) {
@@ -666,32 +667,94 @@ public class SdiEntrega2Tests {
 	
 	
 	
-	/*
 	
-	//PR27. Sin hacer /
-	@Test
-	public void PR27() {
-		assertTrue("PR27 sin hacer", false);			
-	}	
 	
-	//PR029. Sin hacer /
-	@Test
-	public void PR29() {
-		assertTrue("PR29 sin hacer", false);			
-	}
-
-	//PR030. Sin hacer /
+	//PR30. Inicio de sesión con datos válidos./
 	@Test
 	public void PR30() {
-		assertTrue("PR30 sin hacer", false);			
+		driver.navigate().to(URL_Cliente);	
+		
+		PO_LoginView.fillForm(driver, "prueba2@prueba2.com", "prueba2");
+		PO_View.checkElement(driver, "text", "Reloj");
+		
+		
+		
+	}	
+	
+	//PR31. Inicio de sesión con datos inválidos (email existente, pero contraseña incorrecta). /
+	@Test
+	public void PR31() {
+		driver.navigate().to(URL_Cliente);	
+		
+		PO_LoginView.fillForm(driver, "prueba2@prueba2.com", "incorrecto");
+		PO_View.checkElement(driver, "text", "Usuario no encontrado");		
+	}
+
+	//PR32. Inicio de sesión con datos válidos (campo email o contraseña vacíos). /
+	@Test
+	public void PR32() {
+		driver.navigate().to(URL_Cliente);	
+		
+		PO_LoginView.fillForm(driver, "prueba2@prueba2.com", "");
+		PO_View.checkElement(driver, "text", "Usuario no encontrado");				
 	}
 	
-	//PR031. Sin hacer /
+	
+	
+	//PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
+	//existen, menos las del usuario identificado. /
+	@Test
+	public void PR33() {
+		driver.navigate().to(URL_Cliente);	
+		
+		PO_LoginView.fillForm(driver, "selenium1@hotmail.es", "pass12");
+		
+		PO_View.checkElement(driver, "text", "Consola");
+		PO_View.checkElement(driver, "text", "Boli");
+		PO_View.checkElement(driver, "text", "Deus Ex: MK");
+		SeleniumUtils.textoNoPresentePagina(driver, "Reloj");
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
+	 * //PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
+	//existen, menos las del usuario identificado. /
+	@Test
+	public void PR31() {
+		assertTrue("PR31 sin hacer", false);			
+	}//PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
+	//existen, menos las del usuario identificado. /
+	@Test
+	public void PR31() {
+		assertTrue("PR31 sin hacer", false);			
+	}//PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
+	//existen, menos las del usuario identificado. /
+	@Test
+	public void PR31() {
+		assertTrue("PR31 sin hacer", false);			
+	}//PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
+	//existen, menos las del usuario identificado. /
+	@Test
+	public void PR31() {
+		assertTrue("PR31 sin hacer", false);			
+	}//PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
+	//existen, menos las del usuario identificado. /
 	@Test
 	public void PR31() {
 		assertTrue("PR31 sin hacer", false);			
 	}
-	*/
+	 */
+	
+	
+	
 		
 }
 
