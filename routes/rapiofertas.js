@@ -33,6 +33,7 @@ module.exports = function(app, gestorBD, logger) {
 
     app.get("/api/ofertas", function (req, res) {
         logger.debug("GET/api/ofertas");
+        logger.debug(res.usuario);
         let criterio = {usuario : {$ne: res.usuario}};
 
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
@@ -50,11 +51,12 @@ module.exports = function(app, gestorBD, logger) {
         });
     });
 
-    app.get("/api/chat/:id", function (req, res) {
-        logger.debug("GET/api/chat");
+    app.get("/api/chat/mensajes", function (req, res) {
+        logger.debug("GET/api/chat/mensajes");
+        logger.debug(req.body.ofertaId);
         let criterio = {
-            ofertaId : gestorBD.mongo.ObjectID(req.params.id),
-            comprador : res.usuario.email
+            ofertaId : gestorBD.mongo.ObjectID(req.body.ofertaId),
+            autor : res.usuario
         }
             gestorBD.obtenerMensajes(criterio, function (mensajes) {
                 if (mensajes == null || mensajes.length == 0) {
@@ -66,15 +68,15 @@ module.exports = function(app, gestorBD, logger) {
                 } else {
                     logger.debug("Chat obtenido");
                     res.status(200);
-                    res.send(JSON.stringify(chats[0]));
+                    res.send(JSON.stringify(mensajes));
                 }
             });
     });
 
-    app.get("/api/chat/mensajes/:id", function (req, res) {
-        logger.debug("GET/api/chat/mensajes");
+    app.get("/api/chat/:id", function (req, res) {
+        logger.debug("GET/api/chat");
         let criterio = {
-            ofertaId : gestorBD.mongo.ObjectID(req.params.id),
+            ofertaId : gestorBD.mongo.ObjectID(req.params.ofertaId),
             comprador : res.usuario
         };
 
@@ -108,7 +110,7 @@ module.exports = function(app, gestorBD, logger) {
         logger.debug("POST/api/chat");
         let chat = {
             ofertaId: gestorBD.mongo.ObjectID(req.body.ofertaId),
-            comprador: res.usuario.email,
+            comprador: res.usuario,
             vendedor: req.body.oferta.usuario.email,
         }
 
@@ -120,6 +122,7 @@ module.exports = function(app, gestorBD, logger) {
                     error : "Se ha producido un error al insertar el chat"
                 })
             } else {
+                logger.debug("Mensaje insertado");
                 res.status(201);
                 res.json({
                     mensaje : "chat insertado",
@@ -129,10 +132,12 @@ module.exports = function(app, gestorBD, logger) {
         });
     });
 
-    app.post("api/chat/mensajes", function (req, res) {
+    app.post("/api/chat/mensajes", function (req, res) {
         logger.debug("POST/api/chat/mensajes");
+        logger.debug(req.session.usuario);
         let mensaje = {
             autor: res.usuario,
+            oferta: req.params.ofertaId,
             mensaje: req.body.mensaje,
             fecha: new Date().toUTCString(),
             leido: false
