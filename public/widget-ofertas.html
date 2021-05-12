@@ -35,7 +35,7 @@
         $( "#contenedor-principal" ).load("widget-login.html");
       }
     });
-  }
+  };
   function actualizarTabla(ofertasMostrar){
     $( "#tablaCuerpo" ).empty(); // Vaciar la tabla
     for (i = 0; i < ofertasMostrar.length; i++) {
@@ -46,17 +46,17 @@
               "<td>"+ofertasMostrar[i].precio+"</td>" +
               "<td>"+ofertasMostrar[i].usuario+"</td>" +
               "<td>"+
-              "<a onclick=chat('"+ofertasMostrar[i]._id+"',,'"+ofertasMostrar[i].usuario.email+"')>Chat</a>"+
+              "<a onclick=chat('"+ofertasMostrar[i]._id+"','"+ofertasMostrar[i].usuario+"')>Chat</a>"+
               "</td>"+
               "</tr>" );
-    }
-  }
+    };
+  };
   cargarOfertas();
 
   function chat(_id, email) {
     idOfertaSeleccionada = _id;
     emailVendedor = email;
     $("#contenedor-principal").load("widget-chat.html");
-  }
+  };
 
 </script>

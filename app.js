@@ -84,6 +84,7 @@ routerUsuarioToken.use(function(req, res, next) {
 
 // Aplicar routerUsuarioTOken
 app.use("/api/ofertas", routerUsuarioToken);
+app.use("/api/chat/mensajes", routerUsuarioToken);
 
 // routerUsuarioSession
 var routerUsuarioSession = express.Router();
@@ -142,7 +143,7 @@ app.set('crypto',crypto);
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD, validator, logger);
 require("./routes/rofertas.js")(app, swig, gestorBD, logger);
-require("./routes/rapiofertas.js")(app, gestorBD);
+require("./routes/rapiofertas.js")(app, gestorBD, logger);
 
 
 

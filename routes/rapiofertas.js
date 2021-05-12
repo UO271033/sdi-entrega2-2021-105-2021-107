@@ -33,7 +33,7 @@ module.exports = function(app, gestorBD, logger) {
 
     app.get("/api/ofertas", function (req, res) {
         logger.debug("GET/api/ofertas");
-        let criterio = {"usuario" : {$ne: req.session.usuario}};
+        let criterio = {usuario : {$ne: res.usuario}};
 
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
@@ -52,7 +52,10 @@ module.exports = function(app, gestorBD, logger) {
 
     app.get("/api/chat/:id", function (req, res) {
         logger.debug("GET/api/chat");
-        let criterio = {"_id" : gestorBD.mongo.ObjectID(req.params.id)}
+        let criterio = {
+            ofertaId : gestorBD.mongo.ObjectID(req.params.id),
+            comprador : res.usuario.email
+        }
             gestorBD.obtenerMensajes(criterio, function (mensajes) {
                 if (mensajes == null || mensajes.length == 0) {
                     logger.debug("Error al obtener los mensajes");
@@ -129,8 +132,7 @@ module.exports = function(app, gestorBD, logger) {
     app.post("api/chat/mensajes", function (req, res) {
         logger.debug("POST/api/chat/mensajes");
         let mensaje = {
-            chatId: req.body.chatId,
-            autor: res.usuario.email,
+            autor: res.usuario,
             mensaje: req.body.mensaje,
             fecha: new Date().toUTCString(),
             leido: false
