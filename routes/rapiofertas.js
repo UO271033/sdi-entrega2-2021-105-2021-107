@@ -53,10 +53,10 @@ module.exports = function(app, gestorBD, validator, logger) {
 
     app.get("/api/chat/mensajes", function (req, res) {
         logger.debug("GET/api/chat/mensajes");
-        console.log(req.query.ofertaId);
+        logger.debug(req.query.ofertaId);
         let criterio = {
-            ofertaId : gestorBD.mongo.ObjectID(req.query.ofertaId),
-            autor : req.usuario
+            oferta : req.query.ofertaId
+            //autor : req.usuario
         }
             gestorBD.obtenerMensajes(criterio, function (mensajes) {
                 if (mensajes == null || mensajes.length == 0) {
@@ -77,7 +77,7 @@ module.exports = function(app, gestorBD, validator, logger) {
         logger.debug("GET/api/chat");
         let criterio = {
             ofertaId : gestorBD.mongo.ObjectID(req.query.ofertaId),
-            comprador : res.usuario
+            //comprador : res.usuario
         };
 
         gestorBD.obtenerChats(criterio, function (chats) {
@@ -134,10 +134,10 @@ module.exports = function(app, gestorBD, validator, logger) {
 
     app.post("/api/chat/mensajes", function (req, res) {
         logger.debug("POST/api/chat/mensajes");
-        logger.debug(req.session.usuario);
+        logger.debug(res.usuario);
         let mensaje = {
-            autor: res.usuario,
-            oferta: req.params.ofertaId,
+            //autor: res.usuario,
+            oferta: req.body.ofertaId,
             mensaje: req.body.mensaje,
             fecha: new Date().toUTCString(),
             leido: false
