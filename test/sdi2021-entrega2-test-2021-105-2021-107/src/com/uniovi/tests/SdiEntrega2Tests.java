@@ -1,5 +1,6 @@
 package com.uniovi.tests;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 //Paquetes Java
 import java.util.List;
@@ -12,6 +13,9 @@ import static org.junit.Assert.assertTrue;
 //Paquetes Selenium 
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 //Paquetes Utilidades de Testing Propias
 import com.uniovi.tests.util.SeleniumUtils;
 import com.mongodb.MongoClient;
@@ -146,6 +150,7 @@ public class SdiEntrega2Tests {
 		oferta1.append("fecha", "10/5/2021");
 		oferta1.append("usuario", "prueba1@prueba1.com");
 		oferta1.append("comprada", false);
+		oferta1.append("destacada", false);
 		ofertasSample.add(oferta1);
 		
 		Document oferta2 = new Document();
@@ -155,6 +160,7 @@ public class SdiEntrega2Tests {
 		oferta2.append("fecha", "7/5/2021");
 		oferta2.append("usuario", "prueba1@prueba1.com");
 		oferta2.append("comprada", false);
+		oferta2.append("destacada", false);
 		ofertasSample.add(oferta2);
 		
 		Document oferta3 = new Document();
@@ -164,6 +170,7 @@ public class SdiEntrega2Tests {
 		oferta3.append("fecha", "14/4/2021");
 		oferta3.append("usuario", "prueba1@prueba1.com");
 		oferta3.append("comprada", true);
+		oferta3.append("destacada", false);
 		oferta3.append("comprador", "prueba2@prueba2.com");
 		ofertasSample.add(oferta3);
 		
@@ -174,6 +181,7 @@ public class SdiEntrega2Tests {
 		oferta32.append("fecha", "14/4/2021");
 		oferta32.append("usuario", "prueba1@prueba1.com");
 		oferta32.append("comprada", false);
+		oferta32.append("destacada", false);
 		ofertasSample.add(oferta32);
 		
 		
@@ -184,6 +192,7 @@ public class SdiEntrega2Tests {
 		oferta4.append("fecha", "14/4/2021");
 		oferta4.append("usuario", "prueba1@prueba1.com");
 		oferta4.append("comprada", false);
+		oferta4.append("destacada", false);
 		ofertasSample.add(oferta4);
 		
 		
@@ -213,7 +222,7 @@ public class SdiEntrega2Tests {
 	static public void begin() {
 		//COnfiguramos las pruebas.
 		//Fijamos el timeout en cada opción de carga de una vista. 2 segundos.
-		PO_View.setTimeout(3);
+		PO_View.setTimeout(4);
 
 	}
 	@AfterClass
@@ -476,7 +485,7 @@ public class SdiEntrega2Tests {
 		
 		
 		PO_View.checkElement(driver, "text", "Mechero");
-		PO_OwnOfertasView.deleteOferta(driver, "Mechero");
+		PO_OwnOfertasView.deleteOferta(driver, "Mecheroeliminar");
 		PO_View.checkElement(driver, "text", "Oferta eliminada correctamente");
 		SeleniumUtils.textoNoPresentePagina(driver, "Mechero");
 	}	
@@ -490,7 +499,7 @@ public class SdiEntrega2Tests {
 		
 		
 		PO_View.checkElement(driver, "text", "Microfono");
-		PO_OwnOfertasView.deleteOferta(driver, "Microfono");
+		PO_OwnOfertasView.deleteOferta(driver, "Microfonoeliminar");
 		PO_View.checkElement(driver, "text", "Oferta eliminada correctamente");
 		SeleniumUtils.textoNoPresentePagina(driver, "Microfono");			
 	}	
@@ -663,6 +672,110 @@ public class SdiEntrega2Tests {
 	}	
 	
 	
+	//PR26. Al crear una oferta marcar dicha oferta como destacada y a continuación comprobar: i) 
+	//que aparece en el listado de ofertas destacadas para los usuarios y que el saldo del usuario se 
+	//actualiza adecuadamente en la vista del ofertante (-20). /
+	@Test
+	public void PR27() {
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba1@prueba1.com", "prueba1");
+		
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/agregar')]");
+		elementos.get(0).click();	
+		
+		
+		PO_View.checkElement(driver, "li", "100€");
+		PO_AddOfertaView.fillForm(driver, "Somier", "Azul y bonito", "532", true);
+		
+		elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/buscar')]");
+		elementos.get(0).click();
+		
+
+		
+		PO_View.checkElement(driver, "h2", "Ofertas Destacadas");
+		PO_View.checkElement(driver, "text", "Somier");
+		PO_View.checkElement(driver, "li", "80");
+	}
+
+
+	
+	//PR26. Sobre el listado de ofertas de un usuario con más de 20 euros de saldo, pinchar en el 
+	//enlace Destacada y a continuación comprobar: i) que aparece en el listado de ofertas destacadas 
+	//para los usuarios y que el saldo del usuario se actualiza adecuadamente en la vista del ofertante (-
+	//20). /
+	@Test
+	public void PR28() {
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba1@prueba1.com", "prueba1");
+		
+		
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/agregar')]");
+		elementos.get(0).click();	
+		
+		
+		
+		PO_AddOfertaView.fillForm(driver, "Hoja", "DINA4", "0.05", false);
+		
+		elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/propias')]");
+		elementos.get(0).click();
+		
+		PO_View.checkElement(driver, "li", "80.00€");
+		PO_OwnOfertasView.destacarOferta(driver,"Hojadestacar");
+		
+		elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/buscar')]");
+		elementos.get(0).click();
+		
+		PO_SearchOferta.searchOferta(driver, "Hoja");
+		
+		PO_View.checkElement(driver, "li", "60.00€");
+		PO_View.checkElement(driver, "h2", "Ofertas Destacadas");
+		PO_View.checkElement(driver, "text", "Hoja");
+	}	
+	
+	
+	//PR26. Sobre el listado de ofertas de un usuario con menos de 20 euros de saldo, pinchar en el 
+	//enlace Destacada y a continuación comprobar que se muestra el mensaje de saldo no suficiente /
+	@Test
+	public void PR29() {
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba2@prueba2.com", "prueba2");
+				
+				
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/agregar')]");
+		elementos.get(0).click();	
+				
+		PO_AddOfertaView.fillForm(driver, "Botella", "De vidrio", "10.05", false);
+				
+		elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/propias')]");
+		elementos.get(0).click();
+				
+		PO_View.checkElement(driver, "li", "0.00€");
+		PO_OwnOfertasView.destacarOferta(driver,"Botelladestacar");
+		
+		PO_View.checkElement(driver, "li", "0.00€");
+		PO_View.checkElement(driver, "text", "No dispones de dinero suficiente para destacar tu oferta");
+	}
+	
+	
+	
+	
 	
 	
 	
@@ -711,6 +824,17 @@ public class SdiEntrega2Tests {
 		PO_View.checkElement(driver, "text", "Deus Ex: MK");
 		SeleniumUtils.textoNoPresentePagina(driver, "Reloj");
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

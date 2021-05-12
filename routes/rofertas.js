@@ -19,6 +19,49 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
             comprada : false
         }
 
+        if(req.body.destacada==null || req.body.destacada=="" || req.body.destacada=="undefined") {
+           oferta.destacada = false;
+        } else {
+            //Se ha marcado
+
+            if(req.session.usuario.dinero<20) {
+                //No tiene dinero:
+                res.redirect("/ofertas/agregar" +
+                    "?mensaje=No dispones de dinero suficiente para destacar tu oferta"+
+                    "&tipoMensaje=alert-danger ");
+                return;
+
+            } else {
+                //Tiene dinero
+                oferta.destacada=true;
+
+                let dineroFinal = (req.session.usuario.dinero-20).toFixed(2);
+
+
+                let criterioUser = {email:req.session.usuario.email}
+                let userMod = {dinero:dineroFinal}
+
+                gestorBD.modificarUsuario(criterioUser, userMod, function (result) {
+                    if(result==null) {
+                        logger.debug("Error al actualizar el dinero del usuario")
+                        let respuesta = swig.renderFile('views/error.html', {
+                            mensaje : "Error al insertar oferta",
+                            "usuario" : req.session.usuario
+                        });
+                        res.send(respuesta);
+                        return;
+                    } else {
+                        //El dinero se actualiza en la bd
+                        req.session.usuario.dinero=dineroFinal;
+                    }
+                });
+
+            }
+
+        }
+
+
+
 
         ///Validar
         validator.validaDatosOferta(oferta, function (errors) {
@@ -27,23 +70,27 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
                 res.redirect("/ofertas/agregar" +
                     "?mensaje=Datos de la oferta no válidos"+
                     "&tipoMensaje=alert-danger ");
+            } else {
+
+                //Conectarse
+                gestorBD.insertarOferta(oferta, function(id) {
+                    if (id == null) {
+                        logger.debug("Error al insertar oferta")
+                        let respuesta = swig.renderFile('views/error.html', {
+                            mensaje : "Error al insertar",
+                            "usuario" : req.session.usuario
+                        });
+                        res.send(respuesta);
+                    } else {
+                        logger.debug("Oferta insertada: " + id);
+                        res.redirect("/ofertas/propias");
+                    }
+                });
+
             }
         });
 
-        //Conectarse
-        gestorBD.insertarOferta(oferta, function(id) {
-            if (id == null) {
-                logger.debug("Error al insertar oferta")
-                let respuesta = swig.renderFile('views/error.html', {
-                    mensaje : "Error al insertar",
-                    "usuario" : req.session.usuario
-                });
-                res.send(respuesta);
-            } else {
-                logger.debug("Oferta insertada: " + id);
-                res.redirect("/ofertas/propias");
-            }
-        });
+
     });
 
     app.get('/ofertas/propias', function (req, res) {
@@ -152,8 +199,24 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
                     }
                 }
                 logger.debug("Se muestran las ofertas buscadas");
+
+                let ofertasDestacadas = [];
+                let ofertasNoDestacadas = [];
+
+                ofertas.forEach(function (oferta) {
+                    if(oferta.destacada) {
+                        ofertasDestacadas.push(oferta);
+                    } else {
+                        ofertasNoDestacadas.push(oferta);
+                    }
+                } );
+
+
                 let respuesta = swig.renderFile('views/bofertas.html', {
-                    ofertas : ofertas,
+                    ofertasDestacadas : ofertasDestacadas,
+                    ofertasNoDestacadas: ofertasNoDestacadas,
+                    paginas: paginas,
+                    actual: pg,
                     "usuario" : req.session.usuario
                 });
                 res.send(respuesta);
@@ -279,6 +342,89 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
                         "usuario" : req.session.usuario
                 });
                 res.send(respuesta);
+            }
+        });
+    });
+
+
+    app.get('/oferta/destacar/:id', function (req, res) {
+        logger.debug("GET/ofertas/destacar/"+req.params.id);
+
+        let criterio = {"_id" : gestorBD.mongo.ObjectID(req.params.id) };
+
+        //Obtengo la oferta a destacar
+        gestorBD.obtenerOfertas(criterio, function (oferta) {
+            if(oferta==null) {
+                logger.debug("Error al borrar las ofertas");
+                let respuesta = swig.renderFile('views/error.html', {
+                    mensaje : "Error al borrar las ofertas",
+                    "usuario" : req.session.usuario
+                });
+                res.send(respuesta);
+            } else {
+
+                //El usuario en sesión es el propietario y la oferta no está vendida
+                if(oferta[0].usuario==req.session.usuario.email && oferta[0].comprada==false) {
+
+
+                    if(req.session.usuario.dinero<20) {
+                        //No tiene dinero:
+                        res.redirect("/ofertas/propias" +
+                            "?mensaje=No dispones de dinero suficiente para destacar tu oferta"+
+                            "&tipoMensaje=alert-danger ");
+                        return;
+
+                    } else {
+                        //Tiene dinero
+                        let ofertaMod = {destacada:true}
+
+                        let dineroFinal = (req.session.usuario.dinero-20).toFixed(2);
+
+
+                        let criterioUser = {email:req.session.usuario.email}
+                        let userMod = {dinero:dineroFinal}
+
+                        gestorBD.modificarUsuario(criterioUser, userMod, function (result) {
+                            if(result==null) {
+                                logger.debug("Error al actualizar el dinero del usuario")
+                                let respuesta = swig.renderFile('views/error.html', {
+                                    mensaje : "Error al insertar oferta",
+                                    "usuario" : req.session.usuario
+                                });
+                                res.send(respuesta);
+                            } else {
+                                //El dinero se actualiza en la bd
+                                req.session.usuario.dinero=dineroFinal;
+
+                                gestorBD.modificarOferta(criterio, ofertaMod, function (ofertas) {
+                                    if (ofertas == null) {
+                                        logger.debug("Error al modificar la oferta");
+                                        let respuesta = swig.renderFile('views/error.html', {
+                                            mensaje : "Error al modificar la oferta",
+                                            "usuario" : req.session.usuario
+                                        });
+                                        res.send(respuesta);
+                                    } else {
+                                        logger.debug("Oferta destacada: "+req.params.id);
+                                        res.redirect("/ofertas/propias"  +
+                                            "?mensaje=Oferta destacada correctamente"+
+                                            "&tipoMensaje=alert-success ");
+                                    }
+                                });
+
+
+
+
+                            }
+                        });
+
+                    }
+
+                } else {
+                    res.redirect("/ofertas/propias" +
+                        "?mensaje=No puedes destacar esta oferta"+
+                        "&tipoMensaje=alert-danger ");
+                }
             }
         });
     });

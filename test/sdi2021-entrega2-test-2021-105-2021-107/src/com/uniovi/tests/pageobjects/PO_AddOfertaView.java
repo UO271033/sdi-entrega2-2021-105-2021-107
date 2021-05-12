@@ -24,4 +24,12 @@ public class PO_AddOfertaView {
 		driver.findElement(boton).click();
 	}
 
+	public static void fillForm(WebDriver driver, String titulop, String detallep, String preciop, boolean destacada) {
+		if(destacada) {
+			WebElement checkBox = driver.findElement(By.name("destacada"));
+			checkBox.click();
+		}
+		fillForm(driver, titulop, detallep, preciop);
+	}
+
 }

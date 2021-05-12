@@ -11,6 +11,9 @@
                 <th>Fecha</th>
                 <th>Precio (€)</th>
                 <th>Estado</th>
+                <th>Eliminar</th>
+                <th>Destacada</th>
+                <th>Destacar</th>
                 <th class="col-md-1"></th>
             </tr>
         </thead>
@@ -23,10 +26,21 @@
                 <td>{{ oferta.precio }}</td>
                 {% if oferta.comprada %}
                 <td>Comprada</td>
+                <td>-<br>
                 {% else %}
                 <td>En venta</td>
-                <td><a id="{{ oferta.titulo }}" href="/oferta/eliminar/{{oferta._id.toString() }}">Eliminar</a> <br>
+                <td><a id="{{ oferta.titulo }}eliminar" href="/oferta/eliminar/{{oferta._id.toString() }}">Eliminar</a> <br>
                 {% endif %}
+
+                {% if oferta.destacada %}
+                <td>Sí</td>
+                <td>-<br>
+                {% else %}
+                <td>No</td>
+                <td><a id="{{ oferta.titulo }}destacar" href="/oferta/destacar/{{oferta._id.toString() }}">Destacar</a> <br>
+                {% endif %}
+
+
                 </td>
             </tr>
         {% endfor %}

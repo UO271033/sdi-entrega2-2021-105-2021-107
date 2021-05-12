@@ -16,5 +16,10 @@ public class PO_OwnOfertasView {
 
 	}
 
+	public static void destacarOferta(WebDriver driver, String titulo) {
+		WebElement link = driver.findElement(By.id(titulo));
+		link.click();
+	}
+
 
 }
