@@ -6,6 +6,78 @@ module.exports = {
         this.app = app;
     },
 
+    insertarChat : function(chat, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('chats');
+                collection.insertOne(chat, function(err, result) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(result.ops[0]._id);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+    insertarMensaje : function(mensaje, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('mensajes');
+                collection.insertOne(mensaje, function(err, result) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(result.ops[0]._id);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+    obtenerChats : function (criterio, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection("chats");
+                collection.find(criterio).toArray(function (err, chats) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(chats);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+    obtenerMensajes : function (criterio, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection("mensajes");
+                collection.find(criterio).toArray(function (err, mensajes) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(mensajes);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
 
     modificarOferta : function(criterio, oferta, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {

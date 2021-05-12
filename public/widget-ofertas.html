@@ -46,15 +46,16 @@
               "<td>"+ofertasMostrar[i].precio+"</td>" +
               "<td>"+ofertasMostrar[i].usuario+"</td>" +
               "<td>"+
-              "<a onclick=chat('"+ofertasMostrar[i]._id+"')>Chat</a>"+
+              "<a onclick=chat('"+ofertasMostrar[i]._id+"',,'"+ofertasMostrar[i].usuario.email+"')>Chat</a>"+
               "</td>"+
               "</tr>" );
     }
   }
   cargarOfertas();
 
-  function chat(_id) {
+  function chat(_id, email) {
     idOfertaSeleccionada = _id;
+    emailVendedor = email;
     $("#contenedor-principal").load("widget-chat.html");
   }
 

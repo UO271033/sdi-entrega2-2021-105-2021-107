@@ -53,8 +53,128 @@ module.exports = function(app, gestorBD, logger) {
     app.get("/api/chat/:id", function (req, res) {
         logger.debug("GET/api/chat");
         let criterio = {"_id" : gestorBD.mongo.ObjectID(req.params.id)}
+            gestorBD.obtenerMensajes(criterio, function (mensajes) {
+                if (mensajes == null || mensajes.length == 0) {
+                    logger.debug("Error al obtener los mensajes");
+                        res.status(500);
+                        res.json({
+                            error : "Se ha producido un error al obtener los mensajes"
+                        });
+                } else {
+                    logger.debug("Chat obtenido");
+                    res.status(200);
+                    res.send(JSON.stringify(chats[0]));
+                }
+            });
+    });
 
-        gestorBD.obtener
+    app.get("/api/chat/mensajes/:id", function (req, res) {
+        logger.debug("GET/api/chat/mensajes");
+        let criterio = {
+            ofertaId : gestorBD.mongo.ObjectID(req.params.id),
+            comprador : res.usuario
+        };
+
+        gestorBD.obtenerChats(criterio, function (chats) {
+            if (chats == null) {
+                logger.debug("Error al obtener chats");
+                res.status(500);
+                res.json({
+                    error : "Se ha producido un error al obtener los chats"
+                });
+            } else {
+                let criterioMensajes = {"chatId" : chats[0]._id}
+                gestorBD.obtenerMensajes(criterioMensajes, function (mensajes) {
+                    if (mensajes == null || mensajes.length == 0) {
+                        logger.debug("Error al obtener los mensajes");
+                        res.status(500);
+                        res.json({
+                            error : "Se ha producido un error al obtener los mensajes"
+                        });
+                    } else {
+                        logger.debug("Chat obtenido");
+                        res.status(200);
+                        res.send(JSON.stringify(chats[0]));
+                    }
+                });
+            }
+        });
+    });
+
+    app.post("api/chat", function (req, res) {
+        logger.debug("POST/api/chat");
+        let chat = {
+            ofertaId: gestorBD.mongo.ObjectID(req.body.ofertaId),
+            comprador: res.usuario.email,
+            vendedor: req.body.oferta.usuario.email,
+        }
+
+        gestorBD.insertarChat(chat, function (id) {
+            if (id == null) {
+                logger.debug("Error al insertar chat");
+                res.status(500);
+                res.json({
+                    error : "Se ha producido un error al insertar el chat"
+                })
+            } else {
+                res.status(201);
+                res.json({
+                    mensaje : "chat insertado",
+                    _id : id
+                });
+            }
+        });
+    });
+
+    app.post("api/chat/mensajes", function (req, res) {
+        logger.debug("POST/api/chat/mensajes");
+        let mensaje = {
+            chatId: req.body.chatId,
+            autor: res.usuario.email,
+            mensaje: req.body.mensaje,
+            fecha: new Date().toUTCString(),
+            leido: false
+        }
+
+        gestorBD.insertarMensaje(mensaje, function (id) {
+            if (id == null) {
+                logger.debug("Error al insertar mensaje");
+                res.status(500);
+                res.json({
+                    error : "Se ha producido un error al insertar el mensaje"
+                })
+            } else {
+                res.status(201);
+                res.json({
+                    mensaje : "mensaje insertado",
+                    _id : id
+                });
+            }
+        });
+    });
+
+    app.get("/api/chats", function (req, res) {
+        logger.debug("GET/api/chats");
+        let email = res.usuario.email;
+        let criterio = {
+            $or:[
+                {comprador: email},
+                {vendedor: email}
+            ]
+        }
+        gestorBD.obtenerChats(criterio, function (chats) {
+            if (chats == null || chats.length == 0) {
+                logger.debug("Error al obtener chats");
+                res.status(500);
+                res.json({
+                    error : "Se ha producido un error al obtener chats"
+                });
+            } else {
+                logger.debug("Chats obtenidos");
+                res.status(200);
+                res.send(JSON.stringify(chats));
+            }
+        })
     })
 
     app.post("/api/oferta", function(req, res) {

@@ -21,7 +21,7 @@
     var mensajes;
     function cargarMensajes() {
         $.ajax({
-            url: URLbase + "/chat",
+            url: URLbase + "/chat" + idOfertaSeleccionada,
             type: "GET",
             data: {},
             dataType: 'json',
