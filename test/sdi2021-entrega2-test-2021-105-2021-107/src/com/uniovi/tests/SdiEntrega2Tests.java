@@ -96,39 +96,52 @@ public class SdiEntrega2Tests {
 		PO_View.checkElement(driver, "text", "Email ya registrado");			
 	}
 	
-	//PR05. Sin hacer /
+	//PR05. Inicio de sesión con datos válidos /
 	@Test
 	public void PR05() {
-		assertTrue("PR05 sin hacer", false);			
+		PO_HomeView.clickOption(driver, "identifícate", "class", "btn btn-primary");	
+		PO_LoginView.fillForm(driver, "selenium1@hotmail.es", "pass12");
+		PO_View.checkElement(driver, "text", "selenium1@hotmail.es");
+		PO_HomeView.clickOption(driver, "registrarse", "class", "Cerrar Sesión");	
 	}
 	
-	//PR06. Sin hacer /
+	//PR06. Inicio de sesión con datos inválidos (email existente, pero contraseña incorrecta) /
 	@Test
 	public void PR06() {
-		assertTrue("PR06 sin hacer", false);			
+		PO_HomeView.clickOption(driver, "identifícate", "class", "btn btn-primary");	
+		PO_LoginView.fillForm(driver, "selenium1@hotmail.es", "pass12");
+		PO_View.checkElement(driver, "text", "Contraseña incorrecta");	
 	}
 	
-	//PR07. Sin hacer /
+	//PR07. Inicio de sesión con datos inválidos (campo email o contraseña vacíos) /
 	@Test
 	public void PR07() {
-		assertTrue("PR07 sin hacer", false);			
+		PO_HomeView.clickOption(driver, "identifícate", "class", "btn btn-primary");	
+		PO_LoginView.fillForm(driver, "selenium1@hotmail.es", "");
+		PO_View.checkElement(driver, "text", "Completa este campo");		
 	}	
 	
-	//PR08. Sin hacer /
+	//PR08. Inicio de sesión con datos inválidos (email no existente en la aplicación) /
 	@Test
 	public void PR08() {
-		assertTrue("PR08 sin hacer", false);			
+		PO_HomeView.clickOption(driver, "identifícate", "class", "btn btn-primary");	
+		PO_LoginView.fillForm(driver, "selenium1123@hotmail.es", "pass12");
+		PO_View.checkElement(driver, "text", "Email no registrado");		
 	}	
 	
-	//PR09. Sin hacer /
+	//PR09. Hacer click en la opción de salir de sesión y comprobar que se redirige a la página de inicio de sesión (Login) /
 	@Test
 	public void PR09() {
-		assertTrue("PR09 sin hacer", false);			
+		PO_HomeView.clickOption(driver, "identifícate", "class", "btn btn-primary");	
+		PO_LoginView.fillForm(driver, "selenium1@hotmail.es", "pass12");
+		PO_View.checkElement(driver, "text", "selenium1@hotmail.es");
+		PO_HomeView.clickOption(driver, "registrarse", "class", "Cerrar Sesión");			
+		PO_View.checkElement(driver, "text", "Iniciar Sesión");
 	}	
-	//PR10. Sin hacer /
+	//PR10. Comprobar que el botón cerrar sesión no está visible si el usuario no está autenticado /
 	@Test
 	public void PR10() {
-		assertTrue("PR10 sin hacer", false);			
+		SeleniumUtils.EsperaCargaPaginaNoTexto(driver, "Cerrar Sesión", PO_View.getTimeout());		
 	}	
 	
 	//PR11. Sin hacer /
