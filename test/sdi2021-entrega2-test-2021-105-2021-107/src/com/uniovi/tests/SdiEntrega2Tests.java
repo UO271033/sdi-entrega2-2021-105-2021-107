@@ -14,11 +14,8 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.*;
 //Paquetes Utilidades de Testing Propias
 import com.uniovi.tests.util.SeleniumUtils;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 //Paquetes con los Page Object
 import com.uniovi.tests.pageobjects.*;
@@ -718,38 +715,20 @@ public class SdiEntrega2Tests {
 	
 	
 	
-	
-	
-	
-	
-	
-	
 	/*
-	 * //PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
-	//existen, menos las del usuario identificado. /
+	 * //PR34.] Sobre una búsqueda determinada de ofertas (a elección de desarrollador), enviar un 
+	//mensaje a una oferta concreta. Se abriría dicha conversación por primera vez. Comprobar que el 
+	//mensaje aparece en el listado de mensajes /
 	@Test
-	public void PR31() {
-		assertTrue("PR31 sin hacer", false);			
-	}//PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
-	//existen, menos las del usuario identificado. /
+	public void PR34() {
+		assertTrue("PR34 sin hacer", false);			
+	}
+	
+	//PR35. Sobre el listado de conversaciones enviar un mensaje a una conversación ya abierta. 
+	//Comprobar que el mensaje aparece en el listado de mensajes. /
 	@Test
-	public void PR31() {
-		assertTrue("PR31 sin hacer", false);			
-	}//PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
-	//existen, menos las del usuario identificado. /
-	@Test
-	public void PR31() {
-		assertTrue("PR31 sin hacer", false);			
-	}//PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
-	//existen, menos las del usuario identificado. /
-	@Test
-	public void PR31() {
-		assertTrue("PR31 sin hacer", false);			
-	}//PR33. Mostrar el listado de ofertas disponibles y comprobar que se muestran todas las que 
-	//existen, menos las del usuario identificado. /
-	@Test
-	public void PR31() {
-		assertTrue("PR31 sin hacer", false);			
+	public void PR35() {
+		assertTrue("PR35 sin hacer", false);			
 	}
 	 */
 	

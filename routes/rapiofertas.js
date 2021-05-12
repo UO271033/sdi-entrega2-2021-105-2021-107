@@ -19,6 +19,7 @@ module.exports = function(app, gestorBD, logger) {
                 })
             } else {
                 logger.debug("Autenticado con éxito");
+                req.session.usuario=usuarios[0];
                 let token = app.get('jwt').sign(
                     {usuario: criterio.email, tiempo: Date.now()/1000},
                     "secreto");
@@ -33,7 +34,7 @@ module.exports = function(app, gestorBD, logger) {
 
     app.get("/api/ofertas", function (req, res) {
         logger.debug("GET/api/ofertas");
-        let criterio = {"usuario" : {$ne: req.session.usuario}};
+        let criterio = {"usuario" : {$ne: req.session.usuario.email}};
 
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
