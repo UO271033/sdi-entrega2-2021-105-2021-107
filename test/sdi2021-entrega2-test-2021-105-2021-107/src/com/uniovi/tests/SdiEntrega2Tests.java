@@ -144,10 +144,19 @@ public class SdiEntrega2Tests {
 		SeleniumUtils.EsperaCargaPaginaNoTexto(driver, "Cerrar Sesión", PO_View.getTimeout());		
 	}	
 	
-	//PR11. Sin hacer /
+	//PR11.Mostrar el listado de usuarios y comprobar que se muestran todos los que existen en el sistema.  /
 	@Test
 	public void PR11() {
-		assertTrue("PR11 sin hacer", false);			
+		PO_HomeView.clickOption(driver, "identifícate", "class", "btn btn-primary");	
+		PO_LoginView.fillForm(driver, "admin@email.es", "admin");
+		PO_View.checkElement(driver, "text", "Usuarios del sistema");	
+		PO_View.checkElement(driver, "text", "eliminable1@eliminable1.com");	
+		PO_View.checkElement(driver, "text", "eliminable2@eliminable2.com");	
+		PO_View.checkElement(driver, "text", "eliminable3@eliminable3.com");	
+		PO_View.checkElement(driver, "text", "eliminable4@eliminable4.com");	
+		PO_View.checkElement(driver, "text", "eliminable5@eliminable5.com");	
+		PO_View.checkElement(driver, "text", "selenium1@hotmail.es");	
+		PO_HomeView.clickOption(driver, "registrarse", "class", "Cerrar Sesión");	
 	}	
 	
 	//PR12. Sin hacer /
