@@ -31,12 +31,13 @@
 <script>
     window.history.pushState("","", "/cliente.html?w=chat");
     var mensajes;
+    var prueba = idOfertaSeleccionada;
     function cargarMensajes() {
         $.ajax({
             url: URLbase + "/chat/mensajes",
             type: "GET",
             data: {
-                ofertaId : idOfertaSeleccionada,
+                ofertaId : prueba,
             },
             dataType: 'json',
             headers: { "token": token},
@@ -51,12 +52,12 @@
     }
 
     $("#boton-send").click(function (){
-        console.log(idOfertaSeleccionada);
+        console.log(prueba);
         $.ajax({
             url: URLbase + "/chat/mensajes",
             type: "POST",
             data: {
-                ofertaId: idOfertaSeleccionada,
+                ofertaId: prueba,
                 mensaje: $("#mensaje").val()
             },
             dataType: 'json',
