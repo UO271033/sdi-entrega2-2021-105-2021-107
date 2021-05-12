@@ -160,7 +160,7 @@ app.set('crypto',crypto);
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD, validator, logger);
 require("./routes/rofertas.js")(app, swig, gestorBD,validator, logger);
-require("./routes/rapiofertas.js")(app, gestorBD, logger);
+require("./routes/rapiofertas.js")(app, gestorBD, validator, logger);
 
 
 

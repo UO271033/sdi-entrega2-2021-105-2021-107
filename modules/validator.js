@@ -1,5 +1,10 @@
 module.exports = {
 
+    /**
+     * Valida los datos de un usuario dado
+     * @param usuario
+     * @param funcionCallback almacena los errores encontrados en la validación
+     */
     validarUsuario: function (usuario, funcionCallback) {
     let errors = new Array();
     if (usuario.email === null || typeof usuario.email === 'undefined' || usuario.email === "")
@@ -21,7 +26,11 @@ module.exports = {
     },
 
 
-
+    /**
+     * Valida los datos de una oferta dada
+     * @param oferta
+     * @param funcionCallback almacena los errores encontrados en la validación
+     */
     validaDatosOferta: function (oferta, funcionCallback) {
     let errors = new Array();
     if (oferta.titulo === null || typeof oferta.titulo === 'undefined' || oferta.titulo === "")

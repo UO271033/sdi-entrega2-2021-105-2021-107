@@ -1,11 +1,20 @@
 module.exports = function(app, swig, gestorBD, validator, logger) {
 
+
+    /**
+     * Devuelve la página de registro
+     */
     app.get("/registrarse" , function (req, res) {
         logger.debug("GET/registrarse");
         let respuesta = swig.renderFile('views/bregistro.html', {"usuario" : req.session.usuario});
         res.send(respuesta);
     });
 
+    /**
+     * Intenta añadir un usuario a la bd.
+     * Comprueba que las contraseñas coinciden, que no haya ya un usuario con el mismo email.
+     * Si se añade el usuario, inicia sesión.
+     */
     app.post("/usuario", function(req, res) {
         logger.debug("POST/usuario");
         //Las contraseñas no son iguales
@@ -73,7 +82,9 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
     });
 
 
-
+    /**
+     * Devuelve la página de identificación
+     */
     app.get("/identificarse", function (req,res) {
         logger.debug("GET/identificarse");
         let respuesta = swig.renderFile('views/bidentificacion.html', {"usuario" : req.session.usuario});
@@ -148,13 +159,18 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
     });
 
 
+    /**
+     * Saca de sesión al usuario
+     */
     app.get("/deslogear", function (req,res) {
         logger.debug(req.session.usuario.email +" ha salido de sesión");
         req.session.usuario = null;
         res.redirect("/identificarse");
     });
 
-
+    /**
+     * Devuelve la lista de usuarios menos los administradores
+     */
     app.get("/usuarios", function(req, res) {
         logger.debug(req.session.usuario.email +" hace GET/usuarios");
         let criterio = {
@@ -178,7 +194,9 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
         });
     });
 
-
+    /**
+     * Recoge los usuarios marcados para eliminar y los elimina junto a sus ofertas
+     */
     app.post("/usuarios" ,function (req,res) {
         logger.debug(req.session.usuario.email +" hace POST/usuarios");
         if(req.body.emails==null) {

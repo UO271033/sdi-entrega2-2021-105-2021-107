@@ -1,5 +1,8 @@
 module.exports = function(app, swig, gestorBD, validator, logger) {
 
+    /**
+     * Devuelve el formulario para agregar ofertas
+     */
     app.get('/ofertas/agregar', function (req, res) {
         logger.debug("GET/ofertas/agregar");
         let respuesta = swig.renderFile('views/bagregar.html', {
@@ -8,6 +11,10 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
         res.send(respuesta);
     })
 
+    /**
+     * Intenta añadir una oferta a la bd, para ello valida sus datos y si se marcó como destacada comprueba
+     * que pueda serlo. Si se añade con exito redirige a la vista de ofertas propias.
+     */
     app.post("/oferta", function(req, res) {
         logger.debug("POST/oferta");
         let oferta = {
@@ -93,6 +100,10 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
 
     });
 
+
+    /**
+     * Devuelve la lista de ofertas propias
+     */
     app.get('/ofertas/propias', function (req, res) {
         logger.debug("GET/ofertas/propias");
         let criterio = {"usuario" : req.session.usuario.email};
@@ -119,6 +130,10 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
         });
     });
 
+    /**
+     * Elimina una oferta por su id. Solo se podrá eliminar si el usuario en sesion es dueño de la oferta y la oferta
+     * no ha sido vendida.
+     */
     app.get('/oferta/eliminar/:id', function (req, res) {
         logger.debug("GET/ofertas/eliminar/"+req.params.id);
 
@@ -162,6 +177,10 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
         });
     });
 
+    /**
+     * Devuelve una vista con las ofertas con el título según la búsqueda. Si no hay parámetro de búsqueda
+     * devuelve todas.
+     */
     app.get('/ofertas/buscar', function (req, res) {
         logger.debug("GET/ofertas/buscar");
 
@@ -225,8 +244,11 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
     });
 
 
-
-
+    /**
+     * Intenta comprar una oferta usando su id.
+     * Comprueba que la oferta no haya sido comprada, que el usuario en sesión no sea dueño y que
+     * tenga dinero suficiente.
+     */
     app.get('/oferta/comprar/:id', function (req, res) {
         logger.debug("GET/oferta/comprar/" + req.params.id);
 
@@ -320,8 +342,9 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
     });
 
 
-
-
+    /**
+     * Devuelve la vista con las ofertas compradas por el usuario en sesión
+     */
     app.get("/compras", function (req, res) {
         logger.debug("GET/compras");
 
@@ -347,6 +370,10 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
     });
 
 
+    /**
+     * Intenta destacar una oferta por su id. Para ello comprueba que el usuario en sesión sea su propietario,
+     * que la oferta no haya sido vendida y que el usuario disponga de dinero suficiente.
+     */
     app.get('/oferta/destacar/:id', function (req, res) {
         logger.debug("GET/ofertas/destacar/"+req.params.id);
 
@@ -411,15 +438,9 @@ module.exports = function(app, swig, gestorBD, validator, logger) {
                                             "&tipoMensaje=alert-success ");
                                     }
                                 });
-
-
-
-
                             }
                         });
-
                     }
-
                 } else {
                     res.redirect("/ofertas/propias" +
                         "?mensaje=No puedes destacar esta oferta"+
