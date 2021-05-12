@@ -104,7 +104,7 @@ module.exports = function(app, gestorBD, logger) {
         });
     });
 
-    app.post("api/chat", function (req, res) {
+    app.post("/api/chat", function (req, res) {
         logger.debug("POST/api/chat");
         let chat = {
             ofertaId: gestorBD.mongo.ObjectID(req.body.ofertaId),
@@ -129,7 +129,7 @@ module.exports = function(app, gestorBD, logger) {
         });
     });
 
-    app.post("api/chat/mensajes", function (req, res) {
+    app.post("/api/chat/mensajes", function (req, res) {
         logger.debug("POST/api/chat/mensajes");
         let mensaje = {
             autor: res.usuario,
