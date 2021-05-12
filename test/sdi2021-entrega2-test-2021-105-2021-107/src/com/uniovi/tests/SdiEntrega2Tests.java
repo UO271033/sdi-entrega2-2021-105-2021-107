@@ -153,7 +153,7 @@ public class SdiEntrega2Tests {
 		Document oferta2 = new Document();
 		oferta2.append("titulo", "Consola");
 		oferta2.append("detalle", "Nintedo DS");
-		oferta2.append("precio", "127.05");
+		oferta2.append("precio", "53");
 		oferta2.append("fecha", "7/5/2021");
 		oferta2.append("usuario", "prueba1@prueba1.com");
 		oferta2.append("comprada", false);
@@ -168,6 +168,15 @@ public class SdiEntrega2Tests {
 		oferta3.append("comprada", true);
 		oferta3.append("comprador", "prueba2@prueba2.com");
 		ofertasSample.add(oferta3);
+		
+		Document oferta32= new Document();
+		oferta32.append("titulo", "Deus Ex: MK");
+		oferta32.append("detalle", "Para XBOX one");
+		oferta32.append("precio", "47");
+		oferta32.append("fecha", "14/4/2021");
+		oferta32.append("usuario", "prueba1@prueba1.com");
+		oferta32.append("comprada", false);
+		ofertasSample.add(oferta32);
 		
 		
 		Document oferta4 = new Document();
@@ -407,13 +416,13 @@ public class SdiEntrega2Tests {
 		elementos.get(0).click();
 		
 		//Añado:
-		PO_AddOfertaView.fillForm(driver, "Reloj", "Rolex", "327.32");
+		PO_AddOfertaView.fillForm(driver, "Reloj", "Digital", "27.32");
 		
 		//Compruebo:
 		PO_View.checkElement(driver, "h2", "Mis Ofertas");
 		PO_View.checkElement(driver, "text", "Reloj");
-		PO_View.checkElement(driver, "text", "Rolex");
-		PO_View.checkElement(driver, "text", "327.32");
+		PO_View.checkElement(driver, "text", "Digital");
+		PO_View.checkElement(driver, "text", "27.32");
 		
 	}	
 	
@@ -450,15 +459,11 @@ public class SdiEntrega2Tests {
 		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
 		PO_LoginView.fillForm(driver, "selenium1@hotmail.es", "pass12");
 				
-		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
-		elementos.get(0).click();
-		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/propias')]");
-		elementos.get(0).click();	
 		
 		//Compruebo:
 		PO_View.checkElement(driver, "text", "Reloj");
-		PO_View.checkElement(driver, "text", "Rolex");
-		PO_View.checkElement(driver, "text", "327.32");
+		PO_View.checkElement(driver, "text", "Digital");
+		PO_View.checkElement(driver, "text", "27.32");
 	}	
 	
 	
@@ -485,10 +490,6 @@ public class SdiEntrega2Tests {
 		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
 		PO_LoginView.fillForm(driver, "prueba1@prueba1.com", "prueba1");
 		
-		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
-		elementos.get(0).click();
-		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/propias')]");
-		elementos.get(0).click();	
 		
 		PO_View.checkElement(driver, "text", "Microfono");
 		PO_OwnOfertasView.deleteOferta(driver, "Microfono");
@@ -497,48 +498,175 @@ public class SdiEntrega2Tests {
 	}	
 	
 	
-	/*
 	
-	//P20. Sin hacer /
+	
+	//P20. Hacer una búsqueda con el campo vacío y comprobar que se muestra la página que corresponde con el listado de las ofertas existentes en el sistema /
 	@Test
 	public void PR20() {
-		assertTrue("PR20 sin hacer", false);			
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba1@prueba1.com", "prueba1");
+				
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/buscar')]");
+		elementos.get(0).click();				
+		
+		PO_View.checkElement(driver, "text", "Consola");
+		PO_View.checkElement(driver, "text", "Reloj");
 	}	
 	
-	//PR21. Sin hacer /
+	//PR21. Hacer una búsqueda escribiendo en el campo un texto que no exista y comprobar que se muestra la página que corresponde, con la lista de ofertas vacía. /
 	@Test
 	public void PR21() {
-		assertTrue("PR21 sin hacer", false);			
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba1@prueba1.com", "prueba1");
+						
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/buscar')]");
+		elementos.get(0).click();
+		
+		
+		PO_View.checkElement(driver, "text", "Consola");
+		PO_View.checkElement(driver, "text", "Reloj");
+		
+		PO_SearchOferta.searchOferta(driver,"Gambas fritas");
+		
+		SeleniumUtils.textoNoPresentePagina(driver, "Consola");
+		SeleniumUtils.textoNoPresentePagina(driver, "Reloj");
+		
+		
+		
+		
 	}	
 	
-	//PR22. Sin hacer /
+	//PR22. Hacer una búsqueda escribiendo en el campo un texto en minúscula o mayúscula y comprobar que se muestra la página que corresponde, 
+	//con la lista de ofertas que contengan dicho texto, independientemente que el título esté almacenado en minúsculas o mayúscula /
 	@Test
 	public void PR22() {
-		assertTrue("PR22 sin hacer", false);			
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba1@prueba1.com", "prueba1");
+								
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/buscar')]");
+		elementos.get(0).click();
+				
+				
+		PO_View.checkElement(driver, "text", "Consola");
+		PO_View.checkElement(driver, "text", "Reloj");
+				
+		PO_SearchOferta.searchOferta(driver,"CONSOLA");
+		PO_View.checkElement(driver, "text", "Consola");
+		SeleniumUtils.textoNoPresentePagina(driver, "Reloj");	
+		
+		PO_SearchOferta.searchOferta(driver,"consola");
+		PO_View.checkElement(driver, "text", "Consola");
+		SeleniumUtils.textoNoPresentePagina(driver, "Reloj");	
 	}	
 	
-	//PR23. Sin hacer /
+	
+	
+	//PR23. Sobre una búsqueda determinada (a elección de desarrollador), comprar una oferta que 
+	//deja un saldo positivo en el contador del comprobador. Y comprobar que el contador se 
+	//actualiza correctamente en la vista del comprador /
 	@Test
 	public void PR23() {
-		assertTrue("PR23 sin hacer", false);			
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba2@prueba2.com", "prueba2");
+		
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/buscar')]");
+		elementos.get(0).click();
+		PO_SearchOferta.searchOferta(driver,"Consola");
+		
+		PO_View.checkElement(driver, "text", "prueba2@prueba2.com");	
+		PO_View.checkElement(driver, "li", "100€");
+		PO_SearchOferta.buyOferta(driver, "Consola");
+		PO_View.checkElement(driver, "text", "Compra realizada con éxito");
+		PO_View.checkElement(driver, "li", "47.00€");
+		
+		
+		
 	}	
 	
-	//PR24. Sin hacer /
+	//PR24. Sobre una búsqueda determinada (a elección de desarrollador), comprar una oferta que 
+	//deja un saldo 0 en el contador del comprobador. Y comprobar que el contador se actualiza 
+	//correctamente en la vista del comprador.  /
 	@Test
 	public void PR24() {
-		assertTrue("PR24 sin hacer", false);			
-	}	
-	//PR25. Sin hacer /
-	@Test
-	public void PR25() {
-		assertTrue("PR25 sin hacer", false);			
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba2@prueba2.com", "prueba2");
+				
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/buscar')]");
+		elementos.get(0).click();
+		PO_SearchOferta.searchOferta(driver,"Deus");
+				
+		PO_View.checkElement(driver, "text", "prueba2@prueba2.com");	
+		PO_View.checkElement(driver, "li", "47.00€");
+		PO_SearchOferta.buyOferta(driver, "Deus Ex: MK");
+		PO_View.checkElement(driver, "text", "Compra realizada con éxito");
+		PO_View.checkElement(driver, "li", "0.00€");			
 	}	
 	
-	//PR26. Sin hacer /
+	
+	//PR25. Sobre una búsqueda determinada (a elección de desarrollador), intentar comprar una 
+	//oferta que esté por encima de saldo disponible del comprador. Y comprobar que se muestra el 
+	//mensaje de saldo no suficiente /
+	@Test
+	public void PR25() {
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba2@prueba2.com", "prueba2");
+						
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'ofertas/buscar')]");
+		elementos.get(0).click();
+		PO_SearchOferta.searchOferta(driver,"Reloj");
+						
+		PO_View.checkElement(driver, "text", "prueba2@prueba2.com");	
+		PO_View.checkElement(driver, "li", "0.00€");
+		PO_SearchOferta.buyOferta(driver, "Reloj");
+		PO_View.checkElement(driver, "text", "No tiene dinero suficiente para realizar la compra");
+		PO_View.checkElement(driver, "li", "0.00€");			
+	}	
+	
+	
+	
+	
+	//PR26. ] Ir a la opción de ofertas compradas del usuario y mostrar la lista. Comprobar que 
+	//aparecen las ofertas que deben aparecer. /
 	@Test
 	public void PR26() {
-		assertTrue("PR26 sin hacer", false);			
+		//Inicio sesión:
+		PO_HomeView.clickOption(driver, "identificarse", "class", "btn btn-primary");
+		PO_LoginView.fillForm(driver, "prueba2@prueba2.com", "prueba2");
+								
+		List<WebElement> elementos = PO_View.checkElement(driver, "free", "//li[contains(@id,'mOferta')]/a");
+		elementos.get(0).click();
+		elementos = PO_View.checkElement(driver, "free", "//a[contains(@href, 'compras')]");
+		elementos.get(0).click();	
+		
+		
+		PO_View.checkElement(driver, "text", "Consola");
+		PO_View.checkElement(driver, "text", "Boli");
+		PO_View.checkElement(driver, "text", "Deus Ex: MK");
+		SeleniumUtils.textoNoPresentePagina(driver, "Reloj");
+		
 	}	
+	
+	
+	
+	/*
 	
 	//PR27. Sin hacer /
 	@Test

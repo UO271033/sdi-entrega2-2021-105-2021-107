@@ -38,7 +38,7 @@
             <td>{{ oferta.fecha }}</td>
             <td>{{ oferta.precio }}</td>
             <td>{{ oferta.usuario }}</td>
-            <td><a href="/oferta/comprar/{{oferta._id.toString() }}">Comprar</a> <br>
+            <td><a id="{{oferta.titulo}}" href="/oferta/comprar/{{oferta._id.toString() }}">Comprar</a> <br>
             </td>
         </tr>
         {% endfor %}
